@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Logs
+logs
+*.log
+
+# Node dependency directory
+node_modules
+
+# Output of 'npm pack'
+*.tgz
+
+# dotenv environment variables file
+.env
+.env.test
+
+# Bundle output
+dist

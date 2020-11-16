@@ -1,0 +1,55 @@
+{
+	"name": "vue-2-3",
+	"version": "0.0.0-semantic-release",
+	"description": "Interop Vue 2 ↔ 3 components",
+	"keywords": [
+		""
+	],
+	"license": "MIT",
+	"repository": "privatenumber/vue-2-3",
+	"funding": "https://github.com/privatenumber/vue-2-3?sponsor=1",
+	"author": {
+		"name": "Hiroki Osame",
+		"email": "hiroki.osame@gmail.com"
+	},
+	"files": [
+		"dist"
+	],
+	"main": "dist/vue-2-3.js",
+	"module": "dist/vue-2-3.esm.js",
+	"scripts": {
+		"lint": "xo",
+		"test": "jest",
+		"build": "rollup -c --environment NODE_ENV:production"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"lint-staged": {
+		"*.js": [
+			"xo",
+			"jest --bail --findRelatedTests"
+		]
+	},
+	"devDependencies": {
+		"@babel/preset-env": "^7.12.1",
+		"@rollup/plugin-node-resolve": "^10.0.0",
+		"@vue/test-utils": "^1.1.1",
+		"babel-jest": "^26.6.3",
+		"core-js": "^3.7.0",
+		"husky": "^4.3.0",
+		"jest": "^26.6.3",
+		"lint-staged": "^10.5.1",
+		"rollup": "^2.33.1",
+		"rollup-plugin-babel": "^4.4.0",
+		"rollup-plugin-filesize": "^9.0.2",
+		"rollup-plugin-terser": "^7.0.2",
+		"vue": "^2.6.12",
+		"vue-frag": "^1.1.2",
+		"vue-template-compiler": "^2.6.12",
+		"vue3": "npm:vue@^3.0.0",
+		"xo": "^0.34.2"
+	}
+}
