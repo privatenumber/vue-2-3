@@ -30,7 +30,7 @@ function mergeAttrsListeners(attrs, $listeners) {
 	return attrs;
 }
 
-const renderVue2Vnode = /*vue3 component*/ {
+const renderVue2Vnode = /* Vue 3 component */ {
 	props: ['ctx', 'vnode'],
 	created() {
 		this.state = Vue.observable({
@@ -124,6 +124,8 @@ const vue2BaseComponent = {
 
 		const rootElement = this.$el;
 		this.vue3App.mount(rootElement);
+
+		// Unwrap root div
 		const fragment = document.createDocumentFragment();
 		fragment.append(...rootElement.childNodes);
 		rootElement.replaceWith(fragment);

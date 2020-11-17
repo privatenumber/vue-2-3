@@ -1,8 +1,8 @@
 import Vue from 'vue';
-import {createApp, shallowReactive, h, render} from 'vue3';
+import {createApp, shallowReactive, h} from 'vue3';
 
 const hyphenateRE = /\B([A-Z])/g;
-const hyphenate = (str) => str.replace(hyphenateRE, '-$1').toLowerCase();
+const hyphenate = string => string.replace(hyphenateRE, '-$1').toLowerCase();
 
 const eventListenerPtrn = /^on[A-Z]/;
 const optionsModifierRE = /(Once|Passive|Capture)$/;
@@ -26,6 +26,7 @@ function getAttrsAndListeners($attrs) {
 				while ((m = listenerName.match(optionsModifierRE))) {
 					listenerName = eventPrefixes[m[0]] + listenerName.slice(0, -m[0].length);
 				}
+
 				listenerName = listenerName.replace('!~', '~!');
 			}
 
@@ -61,7 +62,7 @@ const renderVue3Vnode = {
 
 		this.vue3App.mount(rootElement);
 
-		// unwrap div
+		// Unwrap root div
 		const fragment = document.createDocumentFragment();
 		fragment.append(...rootElement.childNodes);
 		rootElement.replaceWith(fragment);
@@ -77,14 +78,13 @@ const renderVue3Vnode = {
 	},
 };
 
-
 function transformSlots($slots, h) {
 	const slots = {};
 
 	for (const slotName in $slots) {
 		slots[slotName] = () => h(renderVue3Vnode, {
 			attrs: {
-				vnode: $slots[slotName]
+				vnode: $slots[slotName],
 			},
 		});
 	}
@@ -136,7 +136,7 @@ const vue3BaseComponent = {
 	},
 
 	render() {
-		const { attrs, listeners } = getAttrsAndListeners(this.$attrs);
+		const {attrs, listeners} = getAttrsAndListeners(this.$attrs);
 		this.state.attrs = attrs;
 		this.state.listeners = listeners;
 		this.state.slots = this.$slots;

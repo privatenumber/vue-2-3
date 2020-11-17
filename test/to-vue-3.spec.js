@@ -65,7 +65,7 @@ describe('Vue 2 component in a Vue 3 app', () => {
 			</div>
 			`,
 			components: {
-				vue2Component: toVue3(Vue2Component)
+				vue2Component: toVue3(Vue2Component),
 			},
 		});
 
@@ -182,7 +182,7 @@ describe('Vue 2 component in a Vue 3 app', () => {
 			`,
 
 			components: {
-				vue2Component: toVue3(Vue2Component)
+				vue2Component: toVue3(Vue2Component),
 			},
 
 			methods: {

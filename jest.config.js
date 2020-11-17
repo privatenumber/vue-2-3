@@ -1,5 +1,3 @@
-const vue = process.argv[2].includes('vue-3') ? 'vue3' : 'vue';
-
 module.exports = {
 	transform: {
 		'\\.js$': 'babel-jest',
