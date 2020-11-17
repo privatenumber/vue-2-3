@@ -2,7 +2,7 @@ const {toVue2} = require('vue-2-3');
 const {provide, inject, nextTick} = require('vue3');
 const {mount} = require('@vue/test-utils');
 
-describe('Vue 3 component in Vue 2', () => {
+describe('Vue 3 component in a Vue 2 app', () => {
 	test('render', () => {
 		const Vue3Component = {
 			setup() {
@@ -19,6 +19,8 @@ describe('Vue 3 component in Vue 2', () => {
 
 				{{ propWorks }}
 
+				<div v-bind="$attrs" />
+
 				<slot />
 				<slot name="named-slot" />
 				<slot name="template-slot" />
@@ -31,8 +33,10 @@ describe('Vue 3 component in Vue 2', () => {
 			<div>
 				I'm Vue 2
 
-				<vue3-component :prop-works="'Prop works!'">
+				<vue3-component :prop-works="'Prop works!'" title="attr inherited">
 					Default slot
+
+					<div>some element</div>
 
 					<template #named-slot>
 						Named slot
@@ -153,7 +157,7 @@ describe('Vue 3 component in Vue 2', () => {
 
 				<vue3-component
 					id="button"
-					@click.once="clickHandler"
+					@click.capture.once="clickHandler"
 					@custom-event="customEventHandler"
 				>
 					Click me

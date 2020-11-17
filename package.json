@@ -20,6 +20,8 @@
 	"scripts": {
 		"lint": "xo",
 		"test": "jest",
+		"test:vue2": "jest test/to-vue-2.spec",
+		"test:vue3": "jest test/to-vue-3.spec",
 		"build": "rollup -c --environment NODE_ENV:production"
 	},
 	"husky": {
@@ -42,6 +44,7 @@
 		"husky": "^4.3.0",
 		"jest": "^26.6.3",
 		"lint-staged": "^10.5.1",
+		"outdent": "^0.7.1",
 		"rollup": "^2.33.1",
 		"rollup-plugin-babel": "^4.4.0",
 		"rollup-plugin-filesize": "^9.0.2",
