@@ -104,6 +104,8 @@ function setFakeParentWhileUnmounted(node, fakeParent) {
 	});
 }
 
+const isConfigurableProperty = {configurable: true};
+
 const vue3WrapperBase = {
 	inheritAttrs: false,
 
@@ -121,9 +123,12 @@ const vue3WrapperBase = {
 		const mountEl = this.$el;
 
 		this.vue2App = new Vue({
-			provide: () => new Proxy({}, {
-				getOwnPropertyDescriptor: (target, key) => (key in this._.parent.provides) ? {configurable: true} : undefined,
-				get: (target, key) => this._.parent.provides[key],
+			provide: () => new Proxy(this._.parent.provides, {
+				getOwnPropertyDescriptor(target, key) {
+					if (key in target) {
+						return isConfigurableProperty;
+					}
+				},
 			}),
 
 			render: h => h(

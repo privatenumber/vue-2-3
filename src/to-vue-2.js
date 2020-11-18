@@ -32,11 +32,13 @@ function mergeAttrsListeners(attrs, $listeners) {
 
 const renderVue2Vnode = /* Vue 3 component */ {
 	props: ['ctx', 'vnode'],
+
 	created() {
 		this.state = Vue.observable({
 			vnode: null,
 		});
 	},
+
 	mounted() {
 		// Is this property automatically reactive in Vue3?
 		const vm = this;
@@ -72,7 +74,7 @@ const renderVue2Vnode = /* Vue 3 component */ {
 	},
 };
 
-function transformSlots(ctx, $scopedSlots) {
+function interopSlots(ctx, $scopedSlots) {
 	const scopedSlots = {};
 	for (const slotName in $scopedSlots) {
 		scopedSlots[slotName] = () => h(renderVue2Vnode, {
@@ -95,7 +97,7 @@ function resolveInjection(vm, key) {
 	}
 }
 
-const vue2BaseComponent = {
+const vue2WrapperBase = {
 	inheritAttrs: false,
 
 	created() {
@@ -109,8 +111,8 @@ const vue2BaseComponent = {
 		return {};
 	},
 
+	// Delay until mounted for SSR
 	mounted() {
-		// Delay until mounted because not needed in SSR
 		this.vue3App = createApp({
 			render: () => h(this.$options.component, this.state.attrs, this.state.slots),
 		});
@@ -140,14 +142,15 @@ const vue2BaseComponent = {
 
 	render(h) {
 		this.state.attrs = mergeAttrsListeners(this.$attrs, this.$listeners);
-		this.state.slots = transformSlots(this, this.$scopedSlots);
+		this.state.slots = interopSlots(this, this.$scopedSlots);
 		return h('div');
 	},
 };
 
-const toVue2 = vue3Component => Object.assign(
-	Object.create(vue2BaseComponent),
-	{component: vue3Component},
-);
+const toVue2 = vue3Component => {
+	const vue2Wrapper = Object.create(vue2WrapperBase);
+	vue2Wrapper.component = vue3Component;
+	return vue2Wrapper;
+};
 
 export default toVue2;
