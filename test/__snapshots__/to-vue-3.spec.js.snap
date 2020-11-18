@@ -47,8 +47,8 @@ exports[`Vue 2 component in a Vue 3 app reactivity 6`] = `
 					 Default slot 6  Conditional slot   Scoped slot 9 </article></div>"
 `;
 
-exports[`Vue 2 component in a Vue 3 app render 1`] = `
-"<div> I'm Vue 3 <div some-attr=\\"321\\">
+exports[`Vue 2 component in a Vue 3 app render w/ class, style, attrs, props, slots 1`] = `
+"<div> I'm Vue 3 <div some-attr=\\"321\\" class=\\"static dynamic\\" style=\\"margin: 0px; color: red;\\">
 	Im Vue 2
 
 	prop works!

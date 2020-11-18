@@ -3,7 +3,7 @@ const {provide, inject, nextTick} = require('vue3');
 const {mount} = require('@vue/test-utils');
 
 describe('Vue 3 component in a Vue 2 app', () => {
-	test('render', () => {
+	test('render w/ class, style, attrs, props, slots', () => {
 		const Vue3Component = {
 			setup() {
 				return {
@@ -33,7 +33,14 @@ describe('Vue 3 component in a Vue 2 app', () => {
 			<div>
 				I'm Vue 2
 
-				<vue3-component :prop-works="'Prop works!'" title="attr inherited">
+				<vue3-component
+					class="static"
+					:class="'dynamic'"
+					style="margin: 0;"
+					:style="{ color: 'red' }"
+					:prop-works="'Prop works!'"
+					title="attr inherited"
+				>
 					Default slot
 
 					<div>some element</div>

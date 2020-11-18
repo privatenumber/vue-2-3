@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import frag from 'vue-frag';
 import {createApp, shallowReactive, h} from 'vue3';
+import { vue3ProxyNode } from './utils';
 
 const camelizeRE = /-(\w)/g;
 
@@ -20,8 +21,20 @@ function normalizeEventName(eventName) {
 	return `on${eventName[0].toUpperCase() + eventName.slice(1).replace(camelizeRE, (_, c) => (c ? c.toUpperCase() : ''))}`;
 }
 
-function mergeAttrsListeners(attrs, $listeners) {
-	attrs = Object.assign({}, attrs);
+function mergeAttrsListeners({
+	$attrs,
+	$listeners,
+	$vnode
+}) {
+	const { data } = $vnode;
+	const attrs = Object.assign({}, $attrs);
+
+	if (data.class || data.staticClass) {
+		attrs.class = [data.class, data.staticClass];
+	}
+	if (data.style || data.staticStyle) {
+		attrs.style = [data.style, data.staticStyle];
+	}
 
 	for (const listener in $listeners) {
 		attrs[normalizeEventName(listener)] = $listeners[listener];
@@ -31,7 +44,7 @@ function mergeAttrsListeners(attrs, $listeners) {
 }
 
 const renderVue2Vnode = /* Vue 3 component */ {
-	props: ['ctx', 'vnode'],
+	props: ['parent', 'vnode'],
 
 	created() {
 		this.state = Vue.observable({
@@ -40,12 +53,10 @@ const renderVue2Vnode = /* Vue 3 component */ {
 	},
 
 	mounted() {
-		// Is this property automatically reactive in Vue3?
 		const vm = this;
 		this.vue2App = (new Vue({
 			beforeCreate() {
-				this.$root = vm.ctx.$root;
-				this.$parent = vm.ctx;
+				this.$parent = vm.parent;
 			},
 			directives: {
 				frag,
@@ -74,12 +85,12 @@ const renderVue2Vnode = /* Vue 3 component */ {
 	},
 };
 
-function interopSlots(ctx, $scopedSlots) {
+function interopSlots(ctx) {
 	const scopedSlots = {};
-	for (const slotName in $scopedSlots) {
+	for (const slotName in ctx.$scopedSlots) {
 		scopedSlots[slotName] = () => h(renderVue2Vnode, {
-			ctx,
-			vnode: $scopedSlots[slotName],
+			parent: ctx,
+			vnode: ctx.$scopedSlots[slotName],
 		});
 	}
 
@@ -117,23 +128,19 @@ const vue2WrapperBase = {
 			render: () => h(this.$options.component, this.state.attrs, this.state.slots),
 		});
 
-		// Setup provide-inject
-		this.vue3App._context.provides = new Proxy(this.vue3App._context.provides, {
-			has: (target, key) => resolveInjection(this, key),
-			get: (target, key) => resolveInjection(this, key),
-			set: (target, key, value) => {
+		// Proxy provide-inject
+		this.vue3App._context.provides = new Proxy({}, {
+			has: (_, key) => resolveInjection(this, key),
+			get: (_, key) => resolveInjection(this, key),
+			set: (_, key, value) => {
 				this._provided[key] = value;
 				return true;
 			},
 		});
 
-		const rootElement = this.$el;
-		this.vue3App.mount(rootElement);
-
-		// Unwrap root div
-		const fragment = document.createDocumentFragment();
-		fragment.append(...rootElement.childNodes);
-		rootElement.replaceWith(fragment);
+		const { $el } = this;
+		this.vue3App.mount(vue3ProxyNode($el));
+		$el.remove();
 	},
 
 	beforeDestroy() {
@@ -141,8 +148,8 @@ const vue2WrapperBase = {
 	},
 
 	render(h) {
-		this.state.attrs = mergeAttrsListeners(this.$attrs, this.$listeners);
-		this.state.slots = interopSlots(this, this.$scopedSlots);
+		this.state.attrs = mergeAttrsListeners(this);
+		this.state.slots = interopSlots(this);
 		return h('div');
 	},
 };

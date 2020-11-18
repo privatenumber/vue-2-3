@@ -28,7 +28,7 @@ function mount(_app) {
 }
 
 describe('Vue 2 component in a Vue 3 app', () => {
-	test('render', () => {
+	test('render w/ class, style, attrs, props, slots', () => {
 		const Vue2Component = {
 			props: ['someProp'],
 			template: outdent`
@@ -50,6 +50,10 @@ describe('Vue 2 component in a Vue 3 app', () => {
 				I'm Vue 3
 
 				<vue-2-component
+					class="static"
+					:class="'dynamic'"
+					style="margin: 0"
+					:style="{ color: 'red' }"
 					:some-prop="'prop works!'"
 					some-attr="321"
 				>
@@ -324,5 +328,6 @@ describe('Vue 2 component in a Vue 3 app', () => {
 
 	// TEST REF - it doesnt work
 
+	// test class/style inheritance
 	// test internal API. What does this.$parent do on a vue 2 component in a Vue 3 app?
 });

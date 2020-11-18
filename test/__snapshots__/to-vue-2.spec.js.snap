@@ -85,11 +85,11 @@ exports[`Vue 3 component in a Vue 2 app reactivity 5`] = `
 </div>"
 `;
 
-exports[`Vue 3 component in a Vue 2 app render 1`] = `
+exports[`Vue 3 component in a Vue 2 app render w/ class, style, attrs, props, slots 1`] = `
 "<div>
   I'm Vue 2
 
-  I'm Vue 3 Setup Works Prop works! <div title=\\"attr inherited\\"></div>
+  I'm Vue 3 Setup Works Prop works! <div title=\\"attr inherited\\" class=\\"dynamic static\\" style=\\"color: red; margin: 0px;\\"></div>
   Default slot
 
   <div>some element</div>

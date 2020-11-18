@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import {createApp, shallowReactive, h} from 'vue3';
+import { vue3ProxyNode } from './utils';
 
 const hyphenateRE = /\B([A-Z])/g;
 const hyphenate = string => string.replace(hyphenateRE, '-$1').toLowerCase();
@@ -14,8 +15,12 @@ const eventPrefixes = {
 };
 
 function getAttrsAndListeners($attrs) {
-	const listeners = {};
-	const attrs = {};
+	const data = {
+		style: undefined,
+		class: undefined,
+	};
+	const on = data.on = {};
+	const attrs = data.attrs = {};
 
 	for (const attr in $attrs) {
 		if (eventListenerPtrn.test(attr)) {
@@ -32,20 +37,21 @@ function getAttrsAndListeners($attrs) {
 
 			listenerName = hyphenate(listenerName);
 
-			listeners[listenerName] = $attrs[attr];
+			on[listenerName] = $attrs[attr];
 		} else {
-			attrs[attr] = $attrs[attr];
+			if (attr === 'class' || attr === 'style') {
+				data[attr] = $attrs[attr];
+			} else {
+				attrs[attr] = $attrs[attr];
+			}
 		}
 	}
 
-	return {
-		listeners,
-		attrs,
-	};
+	return data;
 }
 
 const renderVue3Vnode = {
-	props: ['ctx', 'vnode'],
+	props: ['parent', 'vnode'],
 
 	created() {
 		this.state = shallowReactive({
@@ -59,16 +65,11 @@ const renderVue3Vnode = {
 			render: () => this.state.vnode(),
 		});
 
-		this.vue3App._context.provides = this.ctx._.provides;
+		this.vue3App._context.provides = this.parent._.provides;
 
-		const rootElement = this.$el;
-
-		this.vue3App.mount(rootElement);
-
-		// Unwrap root div
-		const fragment = document.createDocumentFragment();
-		fragment.append(...rootElement.childNodes);
-		rootElement.replaceWith(fragment);
+		const { $el } = this;
+		this.vue3App.mount(vue3ProxyNode($el));
+		$el.remove();
 	},
 
 	destroyed() {
@@ -81,14 +82,14 @@ const renderVue3Vnode = {
 	},
 };
 
-function transformSlots(ctx, $slots, h) {
+function transformSlots(h, ctx) {
 	const slots = {};
 
-	for (const slotName in $slots) {
+	for (const slotName in ctx.$slots) {
 		slots[slotName] = () => h(renderVue3Vnode, {
 			attrs: {
-				ctx,
-				vnode: $slots[slotName],
+				parent: ctx,
+				vnode: ctx.$slots[slotName],
 			},
 		});
 	}
@@ -107,12 +108,9 @@ function setFakeParentWhileUnmounted(node, fakeParent) {
 const isConfigurableProperty = {configurable: true};
 
 const vue3WrapperBase = {
-	inheritAttrs: false,
-
 	created() {
 		this.state = Vue.observable({
-			attrs: null,
-			listeners: null,
+			data: null,
 			slots: null,
 		});
 	},
@@ -134,9 +132,8 @@ const vue3WrapperBase = {
 			render: h => h(
 				this.$options.component,
 				{
-					attrs: this.state.attrs,
-					on: this.state.listeners,
-					scopedSlots: transformSlots(this, this.state.slots, h),
+					...this.state.data,
+					scopedSlots: transformSlots(h, this),
 				},
 			),
 
@@ -162,9 +159,8 @@ const vue3WrapperBase = {
 	},
 
 	render() {
-		const {attrs, listeners} = getAttrsAndListeners(this.$attrs);
-		this.state.attrs = attrs;
-		this.state.listeners = listeners;
+		const data = getAttrsAndListeners(this.$attrs);
+		this.state.data = data;
 		this.state.slots = this.$slots;
 		return h('div');
 	},
