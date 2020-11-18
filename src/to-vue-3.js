@@ -115,8 +115,6 @@ const vue3WrapperBase = {
 		});
 	},
 
-	// change to beforemount
-
 	mounted() {
 		const mountEl = this.$el;
 
