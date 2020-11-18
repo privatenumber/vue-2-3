@@ -45,7 +45,7 @@ function getAttrsAndListeners($attrs) {
 }
 
 const renderVue3Vnode = {
-	props: ['vnode'],
+	props: ['ctx', 'vnode'],
 
 	created() {
 		this.state = shallowReactive({
@@ -54,11 +54,17 @@ const renderVue3Vnode = {
 	},
 
 	mounted() {
-		const rootElement = this.$el;
-
+		const vm = this;
 		this.vue3App = createApp({
+			beforeCreate() {
+				this._.parent = vm.ctx._; // not sure if this is necessary
+			},
 			render: () => this.state.vnode(),
 		});
+
+		this.vue3App._context.provides = this.ctx._.provides;
+
+		const rootElement = this.$el;
 
 		this.vue3App.mount(rootElement);
 
@@ -78,12 +84,13 @@ const renderVue3Vnode = {
 	},
 };
 
-function transformSlots($slots, h) {
+function transformSlots(ctx, $slots, h) {
 	const slots = {};
 
 	for (const slotName in $slots) {
 		slots[slotName] = () => h(renderVue3Vnode, {
 			attrs: {
+				ctx,
 				vnode: $slots[slotName],
 			},
 		});
@@ -95,7 +102,7 @@ function transformSlots($slots, h) {
 function setFakeParentWhileUnmounted(node, fakeParent) {
 	Object.defineProperty(node, 'parentNode', {
 		get() {
-			return node.parentElement || fakeParent;
+			return this.parentElement || fakeParent;
 		},
 	});
 }
@@ -111,24 +118,40 @@ const vue3BaseComponent = {
 		});
 	},
 
+	// change to beforemount
 	mounted() {
-		const mountTarget = this.$el;
+		const mountEl = this.$el;
+
 		this.vue2App = new Vue({
+			provide: () => new Proxy({}, {
+				getOwnPropertyDescriptor: (target, key) => (key in this._.parent.provides) ? {configurable: true} : undefined,
+				get: (target, key) => this._.parent.provides[key],
+			}),
+
 			render: h => h(
 				this.$options.component,
 				{
 					attrs: this.state.attrs,
 					on: this.state.listeners,
-					scopedSlots: transformSlots(this.state.slots, h),
+					scopedSlots: transformSlots(this, this.state.slots, h),
 				},
 			),
+
+			// TODO: Add this to to-vue-2 ?
 			mounted() {
-				setFakeParentWhileUnmounted(mountTarget, this.$el.parentNode);
+				setFakeParentWhileUnmounted(mountEl, this.$el.parentNode);
 			},
+
 			destroyed() {
-				this.$el.replaceWith(mountTarget);
+				this.$el.replaceWith(mountEl);
 			},
-		}).$mount(mountTarget);
+
+			methods: {
+				exposeProvided: provided => Object.assign(this._.provides, provided),
+			},
+
+			el: mountEl,
+		});
 	},
 
 	beforeUnmount() {
@@ -144,9 +167,21 @@ const vue3BaseComponent = {
 	},
 };
 
-const toVue3 = vue2Component => Object.assign(
-	Object.create(vue3BaseComponent),
-	{component: vue2Component},
-);
+const getProvidedMixin = {
+	created() {
+		this.$root.exposeProvided(this._provided);
+	},
+};
+
+const toVue3 = vue2Component => {
+	const component = Object.create(vue2Component);
+
+	component.mixins = [getProvidedMixin].concat(vue2Component.mixins || []);
+
+	return Object.assign(
+		Object.create(vue3BaseComponent),
+		{component},
+	);
+};
 
 export default toVue3;

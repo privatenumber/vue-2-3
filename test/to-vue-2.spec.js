@@ -327,4 +327,7 @@ describe('Vue 3 component in a Vue 2 app', () => {
 			expect(vm.html()).toBe(`<div>${randomValue} 1</div>`);
 		});
 	});
+
+	// Test ref
+	// Test providing from Vue2 component to Vue 3
 });

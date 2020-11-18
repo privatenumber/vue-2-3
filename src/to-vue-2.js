@@ -75,7 +75,10 @@ const renderVue2Vnode = /* Vue 3 component */ {
 function transformSlots(ctx, $scopedSlots) {
 	const scopedSlots = {};
 	for (const slotName in $scopedSlots) {
-		scopedSlots[slotName] = () => h(renderVue2Vnode, {ctx, vnode: $scopedSlots[slotName]});
+		scopedSlots[slotName] = () => h(renderVue2Vnode, {
+			ctx,
+			vnode: $scopedSlots[slotName],
+		});
 	}
 
 	return scopedSlots;

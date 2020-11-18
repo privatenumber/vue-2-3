@@ -1,5 +1,5 @@
 const {toVue3} = require('vue-2-3');
-const {createApp, provide, inject, nextTick} = require('vue3');
+const {createApp, nextTick} = require('vue3');
 const outdent = require('outdent');
 
 let mountTarget;
@@ -169,8 +169,6 @@ describe('Vue 2 component in a Vue 3 app', () => {
 		const app = mount({
 			template: outdent`
 			<div>
-				I'm Vue 3
-
 				<vue-2-component
 					id="button"
 					@click.capture.once="clickHandler"
@@ -200,6 +198,131 @@ describe('Vue 2 component in a Vue 3 app', () => {
 		expect(customEventHandler).toHaveBeenCalledTimes(2);
 	});
 
+	describe('provide/inject', () => {
+		test('object provide', async () => {
+			const randomValue = Math.random();
+
+			const Vue2Parent = {
+				template: '<div><slot/></div>',
+				provide: {
+					randomValue,
+				},
+			};
+
+			const Vue2Child = {
+				template: '<div>{{ randomValue }}</div>',
+				inject: ['randomValue'],
+			};
+
+			const app = mount({
+				template: outdent`
+				<vue2-parent>
+					<vue2-child />
+				</vue2-parent>
+				`,
+
+				components: {
+					Vue2Parent: toVue3(Vue2Parent),
+					Vue2Child: toVue3(Vue2Child),
+				},
+			});
+
+			expect(app.html()).toBe(`<div><div>${randomValue}</div></div>`);
+		});
+
+		test('function provide', async () => {
+			const randomValue = Math.random();
+
+			const Vue2Parent = {
+				template: '<div><slot/></div>',
+				provide() {
+					return {
+						randomValue,
+					};
+				},
+			};
+
+			const Vue2Child = {
+				template: '<div>{{ randomValue }}</div>',
+				inject: ['randomValue'],
+			};
+
+			const app = mount({
+				template: outdent`
+				<vue2-parent>
+					<vue2-child />
+				</vue2-parent>
+				`,
+
+				components: {
+					Vue2Parent: toVue3(Vue2Parent),
+					Vue2Child: toVue3(Vue2Child),
+				},
+			});
+
+			expect(app.html()).toBe(`<div><div>${randomValue}</div></div>`);
+		});
+
+		test('provide from Vue 3', async () => {
+			const randomValue = Math.random();
+
+			const Vue2Component = {
+				template: '<div>{{ randomValue }}</div>',
+				inject: ['randomValue'],
+			};
+
+			const app = mount({
+				template: '<vue-2-component />',
+
+				components: {
+					Vue2Component: toVue3(Vue2Component),
+				},
+
+				provide() {
+					return {
+						randomValue,
+					};
+				},
+			});
+
+			expect(app.html()).toBe(`<div>${randomValue}</div>`);
+		});
+
+		test('provide from Vue 2', async () => {
+			const randomValue = Math.random();
+
+			const Vue2Parent = {
+				template: '<div><slot/></div>',
+				provide() {
+					return {
+						randomValue,
+					};
+				},
+			};
+
+			const Vue3Child = {
+				template: '{{ randomValue }}',
+				inject: ['randomValue'],
+			};
+
+			const app = mount({
+				template: outdent`
+				<vue-2-parent>
+					<vue-3-child />
+				</vue-2-parent>
+				`,
+
+				components: {
+					Vue2Parent: toVue3(Vue2Parent),
+					Vue3Child,
+				},
+			});
+
+			expect(app.html()).toBe(`<div>${randomValue}</div>`);
+		});
+	});
+
 	// TEST REF - it doesnt work
 
+	// test internal API. What does this.$parent do on a vue 2 component in a Vue 3 app?
 });
