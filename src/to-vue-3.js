@@ -56,9 +56,6 @@ const renderVue3Vnode = {
 	mounted() {
 		const vm = this;
 		this.vue3App = createApp({
-			beforeCreate() {
-				this._.parent = vm.ctx._; // not sure if this is necessary
-			},
 			render: () => this.state.vnode(),
 		});
 
@@ -107,7 +104,7 @@ function setFakeParentWhileUnmounted(node, fakeParent) {
 	});
 }
 
-const vue3BaseComponent = {
+const vue3WrapperBase = {
 	inheritAttrs: false,
 
 	created() {
@@ -119,6 +116,7 @@ const vue3BaseComponent = {
 	},
 
 	// change to beforemount
+
 	mounted() {
 		const mountEl = this.$el;
 
@@ -175,13 +173,12 @@ const getProvidedMixin = {
 
 const toVue3 = vue2Component => {
 	const component = Object.create(vue2Component);
-
 	component.mixins = [getProvidedMixin].concat(vue2Component.mixins || []);
 
-	return Object.assign(
-		Object.create(vue3BaseComponent),
-		{component},
-	);
+	const vue3Wrapper = Object.create(vue3WrapperBase);
+	vue3Wrapper.component = component;
+
+	return vue3Wrapper;
 };
 
 export default toVue3;
