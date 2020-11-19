@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import {createApp, shallowReactive, h} from 'vue3';
-import { vue3ProxyNode } from './utils';
+import { vue3ProxyNode, privateState } from './utils';
 
 const hyphenateRE = /\B([A-Z])/g;
 const hyphenate = string => string.replace(hyphenateRE, '-$1').toLowerCase();
@@ -109,16 +109,17 @@ const isConfigurableProperty = {configurable: true};
 
 const vue3WrapperBase = {
 	created() {
-		this.state = Vue.observable({
+		this._[privateState] = Vue.observable({
 			data: null,
 			slots: null,
 		});
 	},
 
 	mounted() {
+		const vm = this;
 		const mountEl = this.$el;
 
-		this.vue2App = new Vue({
+		this.v2 = new Vue({
 			provide: () => new Proxy(this._.parent.provides, {
 				getOwnPropertyDescriptor(target, key) {
 					if (key in target) {
@@ -130,13 +131,23 @@ const vue3WrapperBase = {
 			render: h => h(
 				this.$options.component,
 				{
-					...this.state.data,
+					...this._[privateState].data,
 					scopedSlots: transformSlots(h, this),
 				},
 			),
 
-			// TODO: Add this to to-vue-2 ?
 			mounted() {
+				// Rewrite Vue3 vnodes to reference Vue 2 element
+				let source = vm._;
+				const originalNode = source.vnode.el;
+				while (source.vnode.el === originalNode) {
+					source.vnode.el = this.$el;
+					if (source.parent) {
+						source = source.parent;
+					}
+				}
+
+				// Trick Vue 3 into thinking it's element is still in the DOM
 				setFakeParentWhileUnmounted(mountEl, this.$el.parentNode);
 			},
 
@@ -153,13 +164,13 @@ const vue3WrapperBase = {
 	},
 
 	beforeUnmount() {
-		this.vue2App.$destroy();
+		this.v2.$destroy();
 	},
 
 	render() {
 		const data = getAttrsAndListeners(this.$attrs);
-		this.state.data = data;
-		this.state.slots = this.$slots;
+		this._[privateState].data = data;
+		this._[privateState].slots = this.$slots;
 		return h('div');
 	},
 };

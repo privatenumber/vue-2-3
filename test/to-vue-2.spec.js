@@ -64,6 +64,24 @@ describe('Vue 3 component in a Vue 2 app', () => {
 		expect(vm.html()).toMatchSnapshot();
 	});
 
+	test('ref & API', () => {
+		const Vue3Component = {
+			template: '<button>Im Vue 3</button>',
+		};
+
+		const app = mount({
+			template: '<div><vue-3-component ref="test" /></div>',
+			components: {
+				Vue3Component: toVue2(Vue3Component),
+			},
+		});
+
+		const button = app.findComponent({ ref: 'test' });
+
+		expect(button.element.tagName).toBe('BUTTON');
+		expect(button.vm.v3.$el.tagName).toBe('BUTTON');
+	});
+
 	test('reactivity', async () => {
 		const Vue3Component = {
 			props: ['number'],
@@ -335,6 +353,5 @@ describe('Vue 3 component in a Vue 2 app', () => {
 		});
 	});
 
-	// Test ref
 	// Test providing from Vue2 component to Vue 3
 });

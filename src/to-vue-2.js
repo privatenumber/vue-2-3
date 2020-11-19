@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import frag from 'vue-frag';
 import {createApp, shallowReactive, h} from 'vue3';
-import { vue3ProxyNode } from './utils';
+import { vue3ProxyNode, privateState } from './utils';
 
 const camelizeRE = /-(\w)/g;
 
@@ -112,7 +112,7 @@ const vue2WrapperBase = {
 	inheritAttrs: false,
 
 	created() {
-		this.state = shallowReactive({
+		this[privateState] = shallowReactive({
 			attrs: null,
 			slots: null,
 		});
@@ -124,12 +124,16 @@ const vue2WrapperBase = {
 
 	// Delay until mounted for SSR
 	mounted() {
-		this.vue3App = createApp({
-			render: () => h(this.$options.component, this.state.attrs, this.state.slots),
+		const vm = this;
+		this.v3app = createApp({
+			render: () => h(this.$options.component, this[privateState].attrs, this[privateState].slots),
+			mounted() {
+				vm.v3 = this._.subTree.component.proxy;
+			},
 		});
 
 		// Proxy provide-inject
-		this.vue3App._context.provides = new Proxy({}, {
+		this.v3app._context.provides = new Proxy({}, {
 			has: (_, key) => resolveInjection(this, key),
 			get: (_, key) => resolveInjection(this, key),
 			set: (_, key, value) => {
@@ -139,17 +143,18 @@ const vue2WrapperBase = {
 		});
 
 		const { $el } = this;
-		this.vue3App.mount(vue3ProxyNode($el));
+		const root = this.v3app.mount(vue3ProxyNode($el));
+		this.$el = root.$el;
 		$el.remove();
 	},
 
 	beforeDestroy() {
-		this.vue3App.unmount();
+		this.v3app.unmount();
 	},
 
 	render(h) {
-		this.state.attrs = mergeAttrsListeners(this);
-		this.state.slots = interopSlots(this);
+		this[privateState].attrs = mergeAttrsListeners(this);
+		this[privateState].slots = interopSlots(this);
 		return h('div');
 	},
 };

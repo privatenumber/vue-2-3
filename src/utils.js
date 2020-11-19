@@ -10,3 +10,6 @@ export function vue3ProxyNode(el) {
 	};
 }
 
+export const privateState = Symbol('vue-2-3');
+
+

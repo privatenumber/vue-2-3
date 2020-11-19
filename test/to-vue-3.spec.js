@@ -76,6 +76,26 @@ describe('Vue 2 component in a Vue 3 app', () => {
 		expect(app.html()).toMatchSnapshot();
 	});
 
+	test('ref & API', () => {
+		const Vue2Component = {
+			template: '<button>Im Vue 2</button>',
+		};
+
+		const app = mount({
+			template: outdent`
+			<div>
+				<vue-2-component ref="test" />
+			</div>
+			`,
+			components: {
+				vue2Component: toVue3(Vue2Component),
+			},
+		});
+
+		expect(app.vm.$refs.test.$el.tagName).toBe('BUTTON');
+		expect(app.vm.$refs.test.v2.$el.tagName).toBe('BUTTON');
+	});
+
 	test('reactivity', async () => {
 		const Vue2Component = {
 			props: ['number'],
@@ -172,15 +192,12 @@ describe('Vue 2 component in a Vue 3 app', () => {
 
 		const app = mount({
 			template: outdent`
-			<div>
 				<vue-2-component
-					id="button"
 					@click.capture.once="clickHandler"
 					@custom-event="customEventHandler"
 				>
 					Click me
 				</vue-2-component>
-			</div>
 			`,
 
 			components: {
@@ -193,7 +210,7 @@ describe('Vue 2 component in a Vue 3 app', () => {
 			},
 		});
 
-		const button = app.vm.$el.querySelector('#button');
+		const button = app.vm.$el;
 
 		button.click();
 		button.click();
@@ -326,8 +343,5 @@ describe('Vue 2 component in a Vue 3 app', () => {
 		});
 	});
 
-	// TEST REF - it doesnt work
-
-	// test class/style inheritance
 	// test internal API. What does this.$parent do on a vue 2 component in a Vue 3 app?
 });
