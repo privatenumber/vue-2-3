@@ -76,7 +76,7 @@ describe('Vue 3 component in a Vue 2 app', () => {
 			},
 		});
 
-		const button = app.findComponent({ ref: 'test' });
+		const button = app.findComponent({ref: 'test'});
 
 		expect(button.element.tagName).toBe('BUTTON');
 		expect(button.vm.v3.$el.tagName).toBe('BUTTON');

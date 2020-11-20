@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import frag from 'vue-frag';
 import {createApp, shallowReactive, h} from 'vue3';
-import { vue3ProxyNode, privateState } from './utils';
+import {vue3ProxyNode, privateState} from './utils';
 
 const camelizeRE = /-(\w)/g;
 
@@ -24,14 +24,15 @@ function normalizeEventName(eventName) {
 function mergeAttrsListeners({
 	$attrs,
 	$listeners,
-	$vnode
+	$vnode,
 }) {
-	const { data } = $vnode;
+	const {data} = $vnode;
 	const attrs = Object.assign({}, $attrs);
 
 	if (data.class || data.staticClass) {
 		attrs.class = [data.class, data.staticClass];
 	}
+
 	if (data.style || data.staticStyle) {
 		attrs.style = [data.style, data.staticStyle];
 	}
@@ -142,7 +143,7 @@ const vue2WrapperBase = {
 			},
 		});
 
-		const { $el } = this;
+		const {$el} = this;
 		const root = this.v3app.mount(vue3ProxyNode($el));
 		this.$el = root.$el;
 		$el.remove();

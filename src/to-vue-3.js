@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import {createApp, shallowReactive, h} from 'vue3';
-import { vue3ProxyNode, privateState } from './utils';
+import {vue3ProxyNode, privateState} from './utils';
 
 const hyphenateRE = /\B([A-Z])/g;
 const hyphenate = string => string.replace(hyphenateRE, '-$1').toLowerCase();
@@ -18,9 +18,10 @@ function getAttrsAndListeners($attrs) {
 	const data = {
 		style: undefined,
 		class: undefined,
+		on: {},
+		attrs: {},
 	};
-	const on = data.on = {};
-	const attrs = data.attrs = {};
+	const {on, attrs} = data;
 
 	for (const attr in $attrs) {
 		if (eventListenerPtrn.test(attr)) {
@@ -38,12 +39,10 @@ function getAttrsAndListeners($attrs) {
 			listenerName = hyphenate(listenerName);
 
 			on[listenerName] = $attrs[attr];
+		} else if (attr === 'class' || attr === 'style') {
+			data[attr] = $attrs[attr];
 		} else {
-			if (attr === 'class' || attr === 'style') {
-				data[attr] = $attrs[attr];
-			} else {
-				attrs[attr] = $attrs[attr];
-			}
+			attrs[attr] = $attrs[attr];
 		}
 	}
 
@@ -60,14 +59,13 @@ const renderVue3Vnode = {
 	},
 
 	mounted() {
-		const vm = this;
 		this.vue3App = createApp({
 			render: () => this.state.vnode(),
 		});
 
 		this.vue3App._context.provides = this.parent._.provides;
 
-		const { $el } = this;
+		const {$el} = this;
 		this.vue3App.mount(vue3ProxyNode($el));
 		$el.remove();
 	},
@@ -117,7 +115,7 @@ const vue3WrapperBase = {
 
 	mounted() {
 		const vm = this;
-		const mountEl = this.$el;
+		const mountElement = this.$el;
 
 		this.v2 = new Vue({
 			provide: () => new Proxy(this._.parent.provides, {
@@ -148,18 +146,18 @@ const vue3WrapperBase = {
 				}
 
 				// Trick Vue 3 into thinking it's element is still in the DOM
-				setFakeParentWhileUnmounted(mountEl, this.$el.parentNode);
+				setFakeParentWhileUnmounted(mountElement, this.$el.parentNode);
 			},
 
 			destroyed() {
-				this.$el.replaceWith(mountEl);
+				this.$el.replaceWith(mountElement);
 			},
 
 			methods: {
 				exposeProvided: provided => Object.assign(this._.provides, provided),
 			},
 
-			el: mountEl,
+			el: mountElement,
 		});
 	},
 

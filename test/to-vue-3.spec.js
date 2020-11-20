@@ -343,5 +343,5 @@ describe('Vue 2 component in a Vue 3 app', () => {
 		});
 	});
 
-	// test internal API. What does this.$parent do on a vue 2 component in a Vue 3 app?
+	// Test internal API. What does this.$parent do on a vue 2 component in a Vue 3 app?
 });
