@@ -1,1 +1,303 @@
-import e from"vue";import{createApp as t,h as r}from"vue3";var n=Symbol();function i(e,t){e[n]||(e[n]=t,Object.defineProperty(e,"parentNode",{get:function(){return this[n]||this.parentElement}}))}var o=function(e,t){var r=e.splice(0);t.append.apply(t,r),r.forEach((function(e){e[n]=void 0}))};function a(e,t){if(this.frag){var r=this.frag.indexOf(t);r>-1&&this.frag.splice(r,0,e)}if(this[f]){var n=this[f].get(t);n&&(t=n[0])}t.before(e),i(e,this)}function s(e){if(this.frag){var t=this.frag.indexOf(e);t>-1&&this.frag.splice(t,1)}var r=this[f];if(r){var i=r.get(e);if(i)return o(i,e),r.delete(e),void(e[n]=void 0)}e.remove()}var f=Symbol(),c={insertBefore:a,removeChild:s},u=Symbol(),p={insertBefore:a,before:function(e){this.frag[0].before(e)},remove:function(){var e=this[u],t=this.frag,r=t.splice(0,t.length,e);r[0].before(this[u]),r.forEach((function(e){return e.remove()}))},removeChild:s,appendChild:function(e){var t=this.frag.length;this.frag[t-1].after(e);var r=this[u];this.frag[0]===r&&(this.frag.splice(0,1),r.remove()),i(e,this),this.frag.push(e)}},v={inserted:function(e){var t=Array.from(e.childNodes),r=e.parentNode,n=document.createComment("");e[u]=n,0===t.length&&t.push(n);var o=document.createDocumentFragment();o.append.apply(o,t),e.replaceWith(o),e.frag=t,function(e,t,r){e[f]||(e[f]=new Map,Object.assign(e,c)),e[f].set(t,r)}(r,e,t),i(e,r),t.forEach((function(t){return i(t,e)})),Object.defineProperty(e,"innerHTML",{set:function(t){var r=document.createElement("div");r.innerHTML=t;var n=e.frag.length;Array.from(r.childNodes).forEach((function(t){return e.appendChild(t)})),r.append.apply(r,e.frag.splice(0,n))},get:function(){return""}}),Object.assign(e,p)},unbind:function(e){o(e.frag,e),e[u].remove()}},d=function(){};var h=/-(\w)/g;var l={props:["parent","vnode"],created:function(){this.vue2App=void 0},mounted:function(){var t=this,r=this;this.vue2App=new e({beforeCreate:function(){this.$parent=r.parent},directives:{frag:v},render:function(e){return e("div",{directives:[{name:"frag"}]},[t.vnode()])},el:this.$el})},beforeUnmount:function(){this.vue2App.$destroy()},render:function(){return this.vue2App&&this.vue2App.$forceUpdate(),r("div")}};function m(e,t){for(var r=e;r;){if(r._provided&&r._provided[t])return r._provided[t];r=r.$parent}}var g={inheritAttrs:!1,beforeCreate:function(){if(!(e=this)._uid||!e._isVue)throw new Error("toVue2 must be used to mount a component in a Vue 2 app");var e},provide:function(){return{}},mounted:function(){var e=this,n=this;this.v3app=t({render:function(){return r(e.$options.component,function(e){var t,r=e.$attrs,n=e.$listeners,i=e.$vnode.data,o=Object.assign({},r);for(var a in(i.class||i.staticClass)&&(o.class=[i.class,i.staticClass]),(i.style||i.staticStyle)&&(o.style=[i.style,i.staticStyle]),n)o[(t=a,"&"===t[0]&&(t=t.slice(1)+"Passive"),"~"===t[0]&&(t=t.slice(1)+"Once"),"!"===t[0]&&(t=t.slice(1)+"Capture"),"on"+(t[0].toUpperCase()+t.slice(1).replace(h,(function(e,t){return t?t.toUpperCase():""}))))]=n[a];return o}(e),function(e){var t={},n=function(n){t[n]=function(){return r(l,{parent:e,vnode:e.$scopedSlots[n]})}};for(var i in e.$scopedSlots)n(i);return t}(e))},mounted:function(){var e=this;n.v3forceUpdate=function(){return e.$forceUpdate()},n.v3=this._.subTree.component.proxy}}),this.v3app._context.provides=new Proxy({},{has:function(t,r){return m(e,r)},get:function(t,r){return m(e,r)},set:function(t,r,n){return e._provided[r]=n,!0}});var i,o=this.$el,a=this.v3app.mount((i=o,{insertBefore:function(e,t){return i.parentNode.insertBefore(e,t||i)},removeAttribute:d,setAttribute:d}));this.$el=a.$el,o.remove()},beforeDestroy:function(){this.v3app.unmount()},render:function(e){return this.v3forceUpdate&&this.v3forceUpdate(),e("div")}};export default function(e){var t=Object.create(g);return t.component=e,t}
+import Vue from 'vue';
+import { createApp, h } from 'vue3';
+
+var e = Symbol();
+
+function r(r, t) {
+  r[e] || (r[e] = t, Object.defineProperty(r, "parentNode", {
+    get: function get() {
+      return this[e] || this.parentElement;
+    }
+  }));
+}
+
+var t = function t(r, _t) {
+  var n = r.splice(0);
+  _t.append.apply(_t, n), n.forEach(function (r) {
+    r[e] = void 0;
+  });
+};
+
+function n(e, t) {
+  if (this.frag) {
+    var n = this.frag.indexOf(t);
+    n > -1 && this.frag.splice(n, 0, e);
+  }
+
+  if (this[a]) {
+    var i = this[a].get(t);
+    i && (t = i[0]);
+  }
+
+  t.before(e), r(e, this);
+}
+
+function i(r) {
+  if (this.frag) {
+    var n = this.frag.indexOf(r);
+    n > -1 && this.frag.splice(n, 1);
+  }
+
+  var i = this[a];
+
+  if (i) {
+    var f = i.get(r);
+    if (f) return t(f, r), i["delete"](r), void (r[e] = void 0);
+  }
+
+  r.remove();
+}
+
+var a = Symbol(),
+    f = {
+  insertBefore: n,
+  removeChild: i
+};
+var o = Symbol(),
+    s = {
+  insertBefore: n,
+  before: function before(e) {
+    this.frag[0].before(e);
+  },
+  remove: function remove() {
+    var e = this[o],
+        r = this.frag,
+        t = r.splice(0, r.length, e);
+    t[0].before(this[o]), t.forEach(function (e) {
+      return e.remove();
+    });
+  },
+  removeChild: i,
+  appendChild: function appendChild(e) {
+    var t = this.frag.length;
+    this.frag[t - 1].after(e);
+    var n = this[o];
+    this.frag[0] === n && (this.frag.splice(0, 1), n.remove()), r(e, this), this.frag.push(e);
+  }
+},
+    c = {
+  inserted: function inserted(e) {
+    var t = Array.from(e.childNodes),
+        n = e.parentNode,
+        i = document.createComment("");
+    e[o] = i, 0 === t.length && t.push(i);
+    var c = document.createDocumentFragment();
+    c.append.apply(c, t), e.replaceWith(c), e.frag = t, function (e, r, t) {
+      e[a] || (e[a] = new Map(), Object.assign(e, f)), e[a].set(r, t);
+    }(n, e, t), r(e, n), t.forEach(function (t) {
+      return r(t, e);
+    }), Object.defineProperty(e, "innerHTML", {
+      set: function set(r) {
+        var t = document.createElement("div");
+        t.innerHTML = r;
+        var n = e.frag.length;
+        Array.from(t.childNodes).forEach(function (r) {
+          return e.appendChild(r);
+        }), t.append.apply(t, e.frag.splice(0, n));
+      },
+      get: function get() {
+        return "";
+      }
+    }), Object.assign(e, s);
+  },
+  unbind: function unbind(e) {
+    t(e.frag, e), e[o].remove();
+  }
+};
+
+var noop = function noop() {};
+
+function vue3ProxyNode(element) {
+  return {
+    insertBefore: function insertBefore(newNode, referenceNode) {
+      return element.parentNode.insertBefore(newNode, referenceNode || element);
+    },
+    removeAttribute: noop,
+    setAttribute: noop
+  };
+}
+
+var camelizeRE = /-(\w)/g;
+
+function normalizeEventName(eventName) {
+  if (eventName[0] === '&') {
+    eventName = eventName.slice(1) + 'Passive';
+  }
+
+  if (eventName[0] === '~') {
+    eventName = eventName.slice(1) + 'Once';
+  }
+
+  if (eventName[0] === '!') {
+    eventName = eventName.slice(1) + 'Capture';
+  }
+
+  return "on" + (eventName[0].toUpperCase() + eventName.slice(1).replace(camelizeRE, function (_, c) {
+    return c ? c.toUpperCase() : '';
+  }));
+}
+
+function mergeAttrsListeners(_ref) {
+  var $attrs = _ref.$attrs,
+      $listeners = _ref.$listeners,
+      $vnode = _ref.$vnode;
+  var data = $vnode.data;
+  var attrs = Object.assign({}, $attrs);
+
+  if (data["class"] || data.staticClass) {
+    attrs["class"] = [data["class"], data.staticClass];
+  }
+
+  if (data.style || data.staticStyle) {
+    attrs.style = [data.style, data.staticStyle];
+  }
+
+  for (var listener in $listeners) {
+    attrs[normalizeEventName(listener)] = $listeners[listener];
+  }
+
+  return attrs;
+}
+
+var renderVue2Vnode =
+/* Vue 3 component */
+{
+  props: ['parent', 'vnode'],
+  created: function created() {
+    this.vue2App = undefined;
+  },
+  mounted: function mounted() {
+    var _this = this;
+
+    var vm = this;
+    this.vue2App = new Vue({
+      beforeCreate: function beforeCreate() {
+        this.$parent = vm.parent;
+      },
+      directives: {
+        frag: c
+      },
+      render: function render(h) {
+        return h('div', {
+          directives: [{
+            name: 'frag'
+          }]
+        }, [_this.vnode()]);
+      },
+      el: this.$el
+    });
+  },
+  beforeUnmount: function beforeUnmount() {
+    this.vue2App.$destroy();
+  },
+  render: function render() {
+    if (this.vue2App) {
+      this.vue2App.$forceUpdate();
+    }
+
+    return h('div');
+  }
+};
+
+function interopSlots(ctx) {
+  var scopedSlots = {};
+
+  var _loop = function _loop(slotName) {
+    scopedSlots[slotName] = function () {
+      return h(renderVue2Vnode, {
+        parent: ctx,
+        vnode: ctx.$scopedSlots[slotName]
+      });
+    };
+  };
+
+  for (var slotName in ctx.$scopedSlots) {
+    _loop(slotName);
+  }
+
+  return scopedSlots;
+}
+
+function resolveInjection(vm, key) {
+  var source = vm;
+
+  while (source) {
+    if (source._provided && source._provided[key]) {
+      return source._provided[key];
+    }
+
+    source = source.$parent;
+  }
+}
+
+var isVue2 = function isVue2(vm) {
+  return vm._uid && vm._isVue;
+};
+
+var vue2WrapperBase = {
+  inheritAttrs: false,
+  beforeCreate: function beforeCreate() {
+    if (!isVue2(this)) {
+      throw new Error('toVue2 must be used to mount a component in a Vue 2 app');
+    }
+  },
+  provide: function provide() {
+    return {};
+  },
+  // Delay until mounted for SSR
+  mounted: function mounted() {
+    var _this2 = this;
+
+    var vm = this;
+    this.v3app = createApp({
+      render: function render() {
+        return h(_this2.$options.component, mergeAttrsListeners(_this2), interopSlots(_this2));
+      },
+      mounted: function mounted() {
+        var _this3 = this;
+
+        vm.v3forceUpdate = function () {
+          return _this3.$forceUpdate();
+        }; // Expose child component API
+
+
+        vm.v3 = this._.subTree.component.proxy;
+      }
+    }); // Proxy provide-inject
+
+    this.v3app._context.provides = new Proxy({}, {
+      has: function has(_, key) {
+        return resolveInjection(_this2, key);
+      },
+      get: function get(_, key) {
+        return resolveInjection(_this2, key);
+      },
+      set: function set(_, key, value) {
+        _this2._provided[key] = value;
+        return true;
+      }
+    });
+    var $el = this.$el;
+    var root = this.v3app.mount(vue3ProxyNode($el));
+    this.$el = root.$el;
+    $el.remove();
+  },
+  beforeDestroy: function beforeDestroy() {
+    this.v3app.unmount();
+  },
+  render: function render(h) {
+    if (this.v3forceUpdate) {
+      this.v3forceUpdate();
+    }
+
+    return h('div');
+  }
+};
+
+var toVue2 = function toVue2(vue3Component) {
+  var vue2Wrapper = Object.create(vue2WrapperBase);
+  vue2Wrapper.component = vue3Component;
+  return vue2Wrapper;
+};
+
+export default toVue2;

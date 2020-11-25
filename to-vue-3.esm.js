@@ -1,1 +1,226 @@
-import e from"vue";import{h as t,createApp as r}from"vue3";function n(){return(n=Object.assign||function(e){for(var t=1;t<arguments.length;t++){var r=arguments[t];for(var n in r)Object.prototype.hasOwnProperty.call(r,n)&&(e[n]=r[n])}return e}).apply(this,arguments)}var o=function(){};var i=/\B([A-Z])/g,s=/^on[A-Z]/,u=/(Once|Passive|Capture)$/,a={Once:"~",Passive:"&",Capture:"!"};var c={props:["parent","vnode"],mounted:function(){var e=this;this.vue3App=r({render:function(){return e.vnode()}}),this.vue3App._context.provides=this.parent._.provides;var t,n=this.$el;this.vue3App.mount((t=n,{insertBefore:function(e,r){return t.parentNode.insertBefore(e,r||t)},removeAttribute:o,setAttribute:o})),n.remove()},destroyed:function(){this.vue3App.unmount()},render:function(e){return e("div")}};function v(e,t){var r={},n=function(n){r[n]=function(){return e(c,{attrs:{parent:t,vnode:t.$slots[n]}})}};for(var o in t.$slots)n(o);return r}var p={configurable:!0},d={created:function(){if(!(e=this)._||!e._.uid)throw new Error("toVue3 must be used to mount a component in a Vue 3 app");var e;this.v2=void 0},mounted:function(){var t=this,r=this,o=this.$el;this.v2=new e({provide:function(){return new Proxy(r._.provides,{getOwnPropertyDescriptor:function(e,t){if(t in e)return p}})},render:function(e){return e(r.$options.component,n({},function(e){var t={style:void 0,class:void 0,on:{},attrs:{},props:{}},r=t.on,n=t.attrs;for(var o in e)if(s.test(o)){var c=o.slice(2);if(u.test(c)){for(var v=void 0;v=c.match(u);)c=a[v[0]]+c.slice(0,-v[0].length);c=c.replace("!~","~!")}r[c=c.replace(i,"-$1").toLowerCase()]=e[o]}else"class"===o||"style"===o?t[o]=e[o]:n[o]=e[o];return t}(r.$attrs),{scopedSlots:v(e,r)}))},mounted:function(){for(var e,t,n=r._,i=n.vnode.el;n.vnode.el===i;)n.vnode.el=this.$el,n.parent&&(n=n.parent);e=o,t=this.$el.parentNode,Object.defineProperty(e,"parentNode",{get:function(){return this.parentElement||t}})},destroyed:function(){this.$el.replaceWith(o)},methods:{exposeProvided:function(e){return Object.assign(t._.provides,e)}},el:o})},beforeUnmount:function(){this.v2.$destroy()},render:function(){return this.v2&&this.v2.$forceUpdate(),t("div")}},f={created:function(){this.$root.exposeProvided(this._provided)}};export default function(e){var t=Object.create(e);t.mixins=[f].concat(e.mixins||[]);var r=Object.create(d);return r.component=t,r}
+import Vue from 'vue';
+import { h, createApp } from 'vue3';
+
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
+var noop = function noop() {};
+
+function vue3ProxyNode(element) {
+  return {
+    insertBefore: function insertBefore(newNode, referenceNode) {
+      return element.parentNode.insertBefore(newNode, referenceNode || element);
+    },
+    removeAttribute: noop,
+    setAttribute: noop
+  };
+}
+
+var hyphenateRE = /\B([A-Z])/g;
+
+var hyphenate = function hyphenate(string) {
+  return string.replace(hyphenateRE, '-$1').toLowerCase();
+};
+
+var eventListenerPtrn = /^on[A-Z]/;
+var optionsModifierRE = /(Once|Passive|Capture)$/;
+var eventPrefixes = {
+  Once: '~',
+  Passive: '&',
+  Capture: '!'
+};
+
+function getAttrsAndListeners($attrs) {
+  var data = {
+    style: undefined,
+    "class": undefined,
+    on: {},
+    attrs: {},
+    props: {}
+  };
+  var on = data.on,
+      attrs = data.attrs;
+
+  for (var attr in $attrs) {
+    if (eventListenerPtrn.test(attr)) {
+      var listenerName = attr.slice(2);
+
+      if (optionsModifierRE.test(listenerName)) {
+        var m = void 0;
+
+        while (m = listenerName.match(optionsModifierRE)) {
+          listenerName = eventPrefixes[m[0]] + listenerName.slice(0, -m[0].length);
+        }
+
+        listenerName = listenerName.replace('!~', '~!');
+      }
+
+      listenerName = hyphenate(listenerName);
+      on[listenerName] = $attrs[attr];
+    } else if (attr === 'class' || attr === 'style') {
+      data[attr] = $attrs[attr];
+    } else {
+      attrs[attr] = $attrs[attr];
+    }
+  }
+
+  return data;
+}
+
+var renderVue3Vnode = {
+  props: ['parent', 'vnode'],
+  mounted: function mounted() {
+    var _this = this;
+
+    this.vue3App = createApp({
+      render: function render() {
+        return _this.vnode();
+      }
+    });
+    this.vue3App._context.provides = this.parent._.provides;
+    var $el = this.$el;
+    this.vue3App.mount(vue3ProxyNode($el));
+    $el.remove();
+  },
+  destroyed: function destroyed() {
+    this.vue3App.unmount();
+  },
+  render: function render(h) {
+    return h('div');
+  }
+};
+
+function transformSlots(h, ctx) {
+  var slots = {};
+
+  var _loop = function _loop(slotName) {
+    slots[slotName] = function () {
+      return h(renderVue3Vnode, {
+        attrs: {
+          parent: ctx,
+          vnode: ctx.$slots[slotName]
+        }
+      });
+    };
+  };
+
+  for (var slotName in ctx.$slots) {
+    _loop(slotName);
+  }
+
+  return slots;
+}
+
+function setFakeParentWhileUnmounted(node, fakeParent) {
+  Object.defineProperty(node, 'parentNode', {
+    get: function get() {
+      return this.parentElement || fakeParent;
+    }
+  });
+}
+
+var isConfigurableProperty = {
+  configurable: true
+};
+
+var isVue3 = function isVue3(vm) {
+  return vm._ && vm._.uid;
+};
+
+var vue3WrapperBase = {
+  created: function created() {
+    if (!isVue3(this)) {
+      throw new Error('toVue3 must be used to mount a component in a Vue 3 app');
+    }
+
+    this.v2 = undefined;
+  },
+  mounted: function mounted() {
+    var _this2 = this;
+
+    var vm = this;
+    var mountElement = this.$el;
+    this.v2 = new Vue({
+      provide: function provide() {
+        return new Proxy(vm._.provides, {
+          getOwnPropertyDescriptor: function getOwnPropertyDescriptor(target, key) {
+            if (key in target) {
+              return isConfigurableProperty;
+            }
+          }
+        });
+      },
+      render: function render(h) {
+        return h(vm.$options.component, _extends({}, getAttrsAndListeners(vm.$attrs), {
+          scopedSlots: transformSlots(h, vm)
+        }));
+      },
+      mounted: function mounted() {
+        // Rewrite Vue3 vnodes to reference Vue 2 element
+        // Add to toVue2?
+        var source = vm._;
+        var originalNode = source.vnode.el;
+
+        while (source.vnode.el === originalNode) {
+          source.vnode.el = this.$el;
+
+          if (source.parent) {
+            source = source.parent;
+          }
+        } // Trick Vue 3 into thinking its element is still in the DOM
+
+
+        setFakeParentWhileUnmounted(mountElement, this.$el.parentNode);
+      },
+      destroyed: function destroyed() {
+        this.$el.replaceWith(mountElement);
+      },
+      methods: {
+        exposeProvided: function exposeProvided(provided) {
+          return Object.assign(_this2._.provides, provided);
+        }
+      },
+      el: mountElement
+    });
+  },
+  beforeUnmount: function beforeUnmount() {
+    this.v2.$destroy();
+  },
+  render: function render() {
+    if (this.v2) {
+      this.v2.$forceUpdate();
+    }
+
+    return h('div');
+  }
+};
+var getProvidedMixin = {
+  created: function created() {
+    this.$root.exposeProvided(this._provided);
+  }
+};
+
+var toVue3 = function toVue3(vue2Component) {
+  var component = Object.create(vue2Component);
+  component.mixins = [getProvidedMixin].concat(vue2Component.mixins || []);
+  var vue3Wrapper = Object.create(vue3WrapperBase);
+  vue3Wrapper.component = component;
+  return vue3Wrapper;
+};
+
+export default toVue3;

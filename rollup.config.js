@@ -19,7 +19,7 @@ const rollupConfigs = [
 	plugins: [
 		nodeResolve(),
 		babel(),
-		isProd && terser(),
+		// isProd && terser(),
 		isProd && filesize(),
 	],
 	external: ['vue', 'vue3'],
