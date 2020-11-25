@@ -1,6 +1,6 @@
 import Vue from 'vue';
-import {createApp, shallowReactive, h} from 'vue3';
-import {vue3ProxyNode, privateState} from './utils';
+import {createApp, h} from 'vue3';
+import {vue3ProxyNode} from './utils';
 
 const hyphenateRE = /\B([A-Z])/g;
 const hyphenate = string => string.replace(hyphenateRE, '-$1').toLowerCase();
@@ -20,6 +20,7 @@ function getAttrsAndListeners($attrs) {
 		class: undefined,
 		on: {},
 		attrs: {},
+		props: {},
 	};
 	const {on, attrs} = data;
 
@@ -52,15 +53,9 @@ function getAttrsAndListeners($attrs) {
 const renderVue3Vnode = {
 	props: ['parent', 'vnode'],
 
-	created() {
-		this.state = shallowReactive({
-			vnode: null,
-		});
-	},
-
 	mounted() {
 		this.vue3App = createApp({
-			render: () => this.state.vnode(),
+			render: () => this.vnode(),
 		});
 
 		this.vue3App._context.provides = this.parent._.provides;
@@ -74,10 +69,7 @@ const renderVue3Vnode = {
 		this.vue3App.unmount();
 	},
 
-	render(h) {
-		this.state.vnode = this.vnode;
-		return h('div');
-	},
+	render: h => h('div'),
 };
 
 function transformSlots(h, ctx) {
@@ -107,10 +99,7 @@ const isConfigurableProperty = {configurable: true};
 
 const vue3WrapperBase = {
 	created() {
-		this._[privateState] = Vue.observable({
-			data: null,
-			slots: null,
-		});
+		this.v2 = undefined;
 	},
 
 	mounted() {
@@ -118,21 +107,25 @@ const vue3WrapperBase = {
 		const mountElement = this.$el;
 
 		this.v2 = new Vue({
-			provide: () => new Proxy(this._.parent.provides, {
-				getOwnPropertyDescriptor(target, key) {
-					if (key in target) {
-						return isConfigurableProperty;
-					}
-				},
-			}),
+			provide() {
+				return new Proxy(vm._.parent.provides, {
+					getOwnPropertyDescriptor(target, key) {
+						if (key in target) {
+							return isConfigurableProperty;
+						}
+					},
+				});
+			},
 
-			render: h => h(
-				this.$options.component,
-				{
-					...this._[privateState].data,
-					scopedSlots: transformSlots(h, this),
-				},
-			),
+			render(h) {
+				return h(
+					vm.$options.component,
+					{
+						...getAttrsAndListeners(vm.$attrs),
+						scopedSlots: transformSlots(h, vm),
+					},
+				);
+			},
 
 			mounted() {
 				// Rewrite Vue3 vnodes to reference Vue 2 element
@@ -167,9 +160,10 @@ const vue3WrapperBase = {
 	},
 
 	render() {
-		const data = getAttrsAndListeners(this.$attrs);
-		this._[privateState].data = data;
-		this._[privateState].slots = this.$slots;
+		if (this.v2) {
+			this.v2.$forceUpdate();
+		}
+
 		return h('div');
 	},
 };

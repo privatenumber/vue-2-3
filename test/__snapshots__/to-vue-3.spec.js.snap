@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Vue 2 component in a Vue 3 app event-listeners 1`] = `"<button>I'm Vue 2 123</button>"`;
+
 exports[`Vue 2 component in a Vue 3 app reactivity 1`] = `
 "<div> I'm Vue 3 0 <article title=\\"Attribute 0\\">
 					I'm Vue 2
