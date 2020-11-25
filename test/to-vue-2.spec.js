@@ -1,6 +1,36 @@
 const {toVue2} = require('vue-2-3');
-const {provide, inject, nextTick} = require('vue3');
+const {createApp, provide, inject, nextTick} = require('vue3');
 const {mount} = require('@vue/test-utils');
+
+describe('Error handling', () => {
+	test('throw error when used in vue 3 app', () => {
+		const Vue3Component = {
+			props: ['propWorks'],
+			template: `
+				I'm Vue 3
+			`,
+		};
+
+		const initApp = () => {
+			const app = createApp({
+				template: `
+				<div>
+					<vue3-component>
+						Default slot
+					</vue3-component>
+				</div>
+				`,
+				components: {
+					Vue3Component: toVue2(Vue3Component),
+				},
+			});
+			app.config.warnHandler = () => {};
+			app.mount(document.createElement('div'));
+		};
+
+		expect(initApp).toThrow('toVue2 must be used to mount a component in a Vue 2 app');
+	});
+});
 
 describe('Vue 3 component in a Vue 2 app', () => {
 	test('render w/ class, style, attrs, props, slots', () => {
@@ -353,5 +383,5 @@ describe('Vue 3 component in a Vue 2 app', () => {
 		});
 	});
 
-	// Test providing from Vue2 component to Vue 3
+	test.todo('providing from Vue 2 component to Vue 3');
 });

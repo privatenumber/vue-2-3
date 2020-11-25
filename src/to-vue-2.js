@@ -109,8 +109,16 @@ function resolveInjection(vm, key) {
 	}
 }
 
+const isVue2 = vm => vm._uid && vm._isVue;
+
 const vue2WrapperBase = {
 	inheritAttrs: false,
+
+	beforeCreate() {
+		if (!isVue2(this)) {
+			throw new Error('toVue2 must be used to mount a component in a Vue 2 app');
+		}
+	},
 
 	provide() {
 		return {};
