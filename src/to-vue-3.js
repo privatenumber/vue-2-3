@@ -108,7 +108,7 @@ const vue3WrapperBase = {
 
 		this.v2 = new Vue({
 			provide() {
-				return new Proxy(vm._.parent.provides, {
+				return new Proxy(vm._.provides, {
 					getOwnPropertyDescriptor(target, key) {
 						if (key in target) {
 							return isConfigurableProperty;
