@@ -17,3 +17,6 @@ node_modules
 
 # Bundle output
 dist
+
+# jest coverage data
+coverage

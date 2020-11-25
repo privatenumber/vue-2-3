@@ -19,7 +19,7 @@
 	"module": "dist/vue-2-3.esm.js",
 	"scripts": {
 		"lint": "xo",
-		"test": "jest",
+		"test": "jest --coverage",
 		"build": "rollup -c --environment NODE_ENV:production"
 	},
 	"husky": {
