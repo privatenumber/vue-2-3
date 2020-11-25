@@ -97,8 +97,14 @@ function setFakeParentWhileUnmounted(node, fakeParent) {
 
 const isConfigurableProperty = {configurable: true};
 
+const isVue3 = vm => (vm._ && vm._.uid);
+
 const vue3WrapperBase = {
 	created() {
+		if (!isVue3(this)) {
+			throw new Error('toVue3 must be used to mount a component in a Vue 3 app');
+		}
+
 		this.v2 = undefined;
 	},
 

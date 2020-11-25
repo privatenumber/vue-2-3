@@ -1,6 +1,7 @@
 const {toVue3} = require('vue-2-3');
 const {createApp, nextTick} = require('vue3');
 const outdent = require('outdent');
+const Vue = require('vue');
 
 let mountTarget;
 let app;
@@ -10,10 +11,12 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	app.unmount();
-	mountTarget.remove();
-	app = null;
-	mountTarget = null;
+	if (app) {
+		app.unmount();
+		mountTarget.remove();
+		app = null;
+		mountTarget = null;
+	}
 });
 
 function mount(_app) {
@@ -26,6 +29,39 @@ function mount(_app) {
 		html: () => mountTarget.innerHTML,
 	};
 }
+
+describe('Error handling', () => {
+	test('throw error when used in vue 2 app', () => {
+		const Vue2Component = {
+			props: ['propWorks'],
+			template: `
+				I'm Vue 3
+			`,
+		};
+
+		const errorHandler = jest.fn();
+		Vue.config.errorHandler = errorHandler;
+
+		// eslint-disable-next-line no-new
+		new Vue({
+			template: `
+			<div>
+				<vue2-component>
+					Default slot
+				</vue2-component>
+			</div>
+			`,
+			components: {
+				Vue2Component: toVue3(Vue2Component),
+			},
+
+			el: document.createElement('div'),
+		});
+
+		expect(errorHandler).toBeCalled();
+		expect(errorHandler.mock.calls[0][0].message).toBe('toVue3 must be used to mount a component in a Vue 3 app');
+	});
+});
 
 describe('Vue 2 component in a Vue 3 app', () => {
 	test('render w/ class, style, attrs, props, slots', () => {
