@@ -13,10 +13,15 @@
 		"email": "hiroki.osame@gmail.com"
 	},
 	"files": [
-		"dist"
+		"to-vue-2.js",
+		"to-vue-2.esm.js",
+		"to-vue-3.js",
+		"to-vue-3.esm.js"
 	],
-	"main": "dist/vue-2-3.js",
-	"module": "dist/vue-2-3.esm.js",
+	"exports": {
+		"./to-vue-2": "./to-vue-2.esm.js",
+		"./to-vue-3": "./to-vue-3.esm.js"
+	},
 	"scripts": {
 		"lint": "xo",
 		"test": "jest --coverage",

@@ -1,4 +1,4 @@
-const {toVue2} = require('vue-2-3');
+const {default: toVue2} = require('vue-2-3/to-vue-2');
 const {createApp, provide, inject, nextTick} = require('vue3');
 const {mount} = require('@vue/test-utils');
 

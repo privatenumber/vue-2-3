@@ -1,4 +1,4 @@
-const {toVue3} = require('vue-2-3');
+const {default: toVue3} = require('vue-2-3/to-vue-3');
 const {createApp, nextTick} = require('vue3');
 const outdent = require('outdent');
 const Vue = require('vue');
