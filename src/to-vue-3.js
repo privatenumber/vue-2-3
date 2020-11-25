@@ -136,6 +136,7 @@ const vue3WrapperBase = {
 
 			mounted() {
 				// Rewrite Vue3 vnodes to reference Vue 2 element
+				// Add to toVue2?
 				let source = vm._;
 				const originalNode = source.vnode.el;
 				while (source.vnode.el === originalNode) {
