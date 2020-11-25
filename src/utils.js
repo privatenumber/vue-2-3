@@ -9,5 +9,3 @@ export function vue3ProxyNode(element) {
 		setAttribute: noop,
 	};
 }
-
-export const privateState = Symbol('vue-2-3');

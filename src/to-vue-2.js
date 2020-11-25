@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import frag from 'vue-frag';
-import {createApp, shallowReactive, h} from 'vue3';
-import {vue3ProxyNode, privateState} from './utils';
+import {createApp, h} from 'vue3';
+import {vue3ProxyNode} from './utils';
 
 const camelizeRE = /-(\w)/g;
 
@@ -48,9 +48,7 @@ const renderVue2Vnode = /* Vue 3 component */ {
 	props: ['parent', 'vnode'],
 
 	created() {
-		this.state = Vue.observable({
-			vnode: null,
-		});
+		this.vue2App = undefined;
 	},
 
 	mounted() {
@@ -69,11 +67,10 @@ const renderVue2Vnode = /* Vue 3 component */ {
 						{name: 'frag'},
 					],
 				},
-				[this.state.vnode()],
+				[this.vnode()],
 			),
+			el: this.$el,
 		}));
-
-		this.vue2App.$mount(this.$el);
 	},
 
 	beforeUnmount() {
@@ -81,7 +78,10 @@ const renderVue2Vnode = /* Vue 3 component */ {
 	},
 
 	render() {
-		this.state.vnode = this.vnode;
+		if (this.vue2App) {
+			this.vue2App.$forceUpdate();
+		}
+
 		return h('div');
 	},
 };
@@ -112,13 +112,6 @@ function resolveInjection(vm, key) {
 const vue2WrapperBase = {
 	inheritAttrs: false,
 
-	created() {
-		this[privateState] = shallowReactive({
-			attrs: null,
-			slots: null,
-		});
-	},
-
 	provide() {
 		return {};
 	},
@@ -127,8 +120,15 @@ const vue2WrapperBase = {
 	mounted() {
 		const vm = this;
 		this.v3app = createApp({
-			render: () => h(this.$options.component, this[privateState].attrs, this[privateState].slots),
+			render: () => h(
+				this.$options.component,
+				mergeAttrsListeners(this),
+				interopSlots(this),
+			),
 			mounted() {
+				vm.v3forceUpdate = () => this.$forceUpdate();
+
+				// Expose child component API
 				vm.v3 = this._.subTree.component.proxy;
 			},
 		});
@@ -154,8 +154,10 @@ const vue2WrapperBase = {
 	},
 
 	render(h) {
-		this[privateState].attrs = mergeAttrsListeners(this);
-		this[privateState].slots = interopSlots(this);
+		if (this.v3forceUpdate) {
+			this.v3forceUpdate();
+		}
+
 		return h('div');
 	},
 };
