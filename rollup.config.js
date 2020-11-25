@@ -5,8 +5,17 @@ import {nodeResolve} from '@rollup/plugin-node-resolve';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-const rollupConfig = {
-	input: 'src/vue-2-3.js',
+const rollupConfigs = [
+	{
+		name: 'toVue2',
+		file: 'to-vue-2',
+	},
+	{
+		name: 'toVue3',
+		file: 'to-vue-3',
+	},
+].map(({name, file}) => ({
+	input: `src/${file}.js`,
 	plugins: [
 		nodeResolve(),
 		babel(),
@@ -17,9 +26,9 @@ const rollupConfig = {
 	output: [
 		{
 			format: 'umd',
-			file: 'dist/vue-2-3.js',
-			name: 'vue23',
-			exports: 'named',
+			file: `${file}.js`,
+			name,
+			exports: 'default',
 			globals: {
 				vue: 'Vue',
 				vue3: 'Vue3',
@@ -27,9 +36,9 @@ const rollupConfig = {
 		},
 		{
 			format: 'es',
-			file: 'dist/vue-2-3.esm.js',
+			file: `${file}.esm.js`,
 		},
 	],
-};
+}));
 
-export default rollupConfig;
+export default rollupConfigs;

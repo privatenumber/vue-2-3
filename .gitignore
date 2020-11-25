@@ -16,7 +16,7 @@ node_modules
 .env.test
 
 # Bundle output
-dist
+/to-vue-*.js
 
 # jest coverage data
 coverage

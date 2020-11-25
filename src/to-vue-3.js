@@ -145,7 +145,7 @@ const vue3WrapperBase = {
 					}
 				}
 
-				// Trick Vue 3 into thinking it's element is still in the DOM
+				// Trick Vue 3 into thinking its element is still in the DOM
 				setFakeParentWhileUnmounted(mountElement, this.$el.parentNode);
 			},
 
