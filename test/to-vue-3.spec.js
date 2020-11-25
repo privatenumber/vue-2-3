@@ -187,12 +187,14 @@ describe('Vue 2 component in a Vue 3 app', () => {
 		const customEventHandler = jest.fn();
 
 		const Vue2Component = {
-			template: '<button v-on="$listeners" @click="$emit(\'custom-event\')">I\'m Vue 2</button>',
+			props: ['someProp'],
+			template: '<button v-on="$listeners" @click="$emit(\'custom-event\')">I\'m Vue 2 {{ someProp }}</button>',
 		};
 
 		const app = mount({
 			template: outdent`
 				<vue-2-component
+					some-prop="123"
 					@click.capture.once="clickHandler"
 					@custom-event="customEventHandler"
 				>
@@ -209,6 +211,10 @@ describe('Vue 2 component in a Vue 3 app', () => {
 				customEventHandler,
 			},
 		});
+
+		await nextTick();
+
+		expect(app.html()).toMatchSnapshot();
 
 		const button = app.vm.$el;
 

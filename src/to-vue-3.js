@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import {createApp, shallowReactive, h} from 'vue3';
-import {vue3ProxyNode, privateState} from './utils';
+import {vue3ProxyNode} from './utils';
 
 const hyphenateRE = /\B([A-Z])/g;
 const hyphenate = string => string.replace(hyphenateRE, '-$1').toLowerCase();
@@ -20,6 +20,7 @@ function getAttrsAndListeners($attrs) {
 		class: undefined,
 		on: {},
 		attrs: {},
+		props: {},
 	};
 	const {on, attrs} = data;
 
@@ -107,10 +108,7 @@ const isConfigurableProperty = {configurable: true};
 
 const vue3WrapperBase = {
 	created() {
-		this._[privateState] = Vue.observable({
-			data: null,
-			slots: null,
-		});
+		this.v2 = undefined;
 	},
 
 	mounted() {
@@ -126,13 +124,15 @@ const vue3WrapperBase = {
 				},
 			}),
 
-			render: h => h(
-				this.$options.component,
-				{
-					...this._[privateState].data,
-					scopedSlots: transformSlots(h, this),
-				},
-			),
+			render(h) {
+				return h(
+					vm.$options.component,
+					{
+						...getAttrsAndListeners(vm.$attrs),
+						scopedSlots: transformSlots(h, vm),
+					},
+				);
+			},
 
 			mounted() {
 				// Rewrite Vue3 vnodes to reference Vue 2 element
@@ -167,9 +167,10 @@ const vue3WrapperBase = {
 	},
 
 	render() {
-		const data = getAttrsAndListeners(this.$attrs);
-		this._[privateState].data = data;
-		this._[privateState].slots = this.$slots;
+		if (this.v2) {
+			this.v2.$forceUpdate();
+		}
+
 		return h('div');
 	},
 };
