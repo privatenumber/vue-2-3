@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import {createApp, shallowReactive, h} from 'vue3';
+import {createApp, h} from 'vue3';
 import {vue3ProxyNode} from './utils';
 
 const hyphenateRE = /\B([A-Z])/g;
@@ -53,15 +53,9 @@ function getAttrsAndListeners($attrs) {
 const renderVue3Vnode = {
 	props: ['parent', 'vnode'],
 
-	created() {
-		this.state = shallowReactive({
-			vnode: null,
-		});
-	},
-
 	mounted() {
 		this.vue3App = createApp({
-			render: () => this.state.vnode(),
+			render: () => this.vnode(),
 		});
 
 		this.vue3App._context.provides = this.parent._.provides;
@@ -75,10 +69,7 @@ const renderVue3Vnode = {
 		this.vue3App.unmount();
 	},
 
-	render(h) {
-		this.state.vnode = this.vnode;
-		return h('div');
-	},
+	render: h => h('div'),
 };
 
 function transformSlots(h, ctx) {
@@ -116,13 +107,15 @@ const vue3WrapperBase = {
 		const mountElement = this.$el;
 
 		this.v2 = new Vue({
-			provide: () => new Proxy(this._.parent.provides, {
-				getOwnPropertyDescriptor(target, key) {
-					if (key in target) {
-						return isConfigurableProperty;
-					}
-				},
-			}),
+			provide() {
+				return new Proxy(vm._.parent.provides, {
+					getOwnPropertyDescriptor(target, key) {
+						if (key in target) {
+							return isConfigurableProperty;
+						}
+					},
+				});
+			},
 
 			render(h) {
 				return h(
