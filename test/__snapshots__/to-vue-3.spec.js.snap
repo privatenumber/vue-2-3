@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Vue 2 component in a Vue 3 app reactivity 1`] = `
+"<div> I'm Vue 3 0 <article title=\\"Attribute 0\\">
+					I'm Vue 2
+
+					Prop: 0
+
+					 Default slot 0 <!--v-if-->  Scoped slot 0 </article></div>"
+`;
+
+exports[`Vue 2 component in a Vue 3 app reactivity 2`] = `
+"<div> I'm Vue 3 1 <article title=\\"Attribute 1\\">
+					I'm Vue 2
+
+					Prop: 1
+
+					 Default slot 2  Conditional slot   Scoped slot 3 </article></div>"
+`;
+
+exports[`Vue 2 component in a Vue 3 app reactivity 3`] = `
+"<div> I'm Vue 3 2 <article title=\\"Attribute 2\\">
+					I'm Vue 2
+
+					Prop: 2
+
+					 Default slot 4 <!--v-if-->  Scoped slot 6 </article></div>"
+`;
+
+exports[`Vue 2 component in a Vue 3 app reactivity 4`] = `
+"<div> I'm Vue 3 3 <article title=\\"Attribute 3\\">
+					I'm Vue 2
+
+					Prop: 3
+
+					 Default slot 6  Conditional slot   Scoped slot 9 </article></div>"
+`;
+
+exports[`Vue 2 component in a Vue 3 app reactivity 5`] = `"<div> I'm Vue 3 3 <!--v-if--></div>"`;
+
+exports[`Vue 2 component in a Vue 3 app reactivity 6`] = `
+"<div> I'm Vue 3 3 <article title=\\"Attribute 3\\">
+					I'm Vue 2
+
+					Prop: 3
+
+					 Default slot 6  Conditional slot   Scoped slot 9 </article></div>"
+`;
+
+exports[`Vue 2 component in a Vue 3 app render w/ class, style, attrs, props, slots 1`] = `
+"<div> I'm Vue 3 <div some-attr=\\"321\\" class=\\"static dynamic\\" style=\\"margin: 0px; color: red;\\">
+	Im Vue 2
+
+	prop works!
+
+	 Default slot <div>some element</div>  Scoped slot <div>some element 2</div></div></div>"
+`;

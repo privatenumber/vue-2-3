@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Vue 3 component in Vue 2 reactivity 1`] = `
+exports[`Vue 3 component in a Vue 2 app reactivity 1`] = `
 "<div>
   I'm Vue 2
   0
@@ -18,7 +18,7 @@ exports[`Vue 3 component in Vue 2 reactivity 1`] = `
 </div>"
 `;
 
-exports[`Vue 3 component in Vue 2 reactivity 2`] = `
+exports[`Vue 3 component in a Vue 2 app reactivity 2`] = `
 "<div>
   I'm Vue 2
   1
@@ -38,7 +38,7 @@ exports[`Vue 3 component in Vue 2 reactivity 2`] = `
 </div>"
 `;
 
-exports[`Vue 3 component in Vue 2 reactivity 3`] = `
+exports[`Vue 3 component in a Vue 2 app reactivity 3`] = `
 "<div>
   I'm Vue 2
   2
@@ -55,7 +55,7 @@ exports[`Vue 3 component in Vue 2 reactivity 3`] = `
 </div>"
 `;
 
-exports[`Vue 3 component in Vue 2 reactivity 4`] = `
+exports[`Vue 3 component in a Vue 2 app reactivity 4`] = `
 "<div>
   I'm Vue 2
   3
@@ -75,7 +75,7 @@ exports[`Vue 3 component in Vue 2 reactivity 4`] = `
 </div>"
 `;
 
-exports[`Vue 3 component in Vue 2 reactivity 5`] = `
+exports[`Vue 3 component in a Vue 2 app reactivity 5`] = `
 "<div>
   I'm Vue 2
   3
@@ -85,14 +85,14 @@ exports[`Vue 3 component in Vue 2 reactivity 5`] = `
 </div>"
 `;
 
-exports[`Vue 3 component in Vue 2 render 1`] = `
+exports[`Vue 3 component in a Vue 2 app render w/ class, style, attrs, props, slots 1`] = `
 "<div>
   I'm Vue 2
 
-  I'm Vue 3 Setup Works Prop works!
+  I'm Vue 3 Setup Works Prop works! <div title=\\"attr inherited\\" class=\\"dynamic static\\" style=\\"color: red; margin: 0px;\\"></div>
   Default slot
 
-
+  <div>some element</div>
   Named slot
   <div>
     Element slot

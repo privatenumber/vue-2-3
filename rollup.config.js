@@ -21,7 +21,8 @@ const rollupConfig = {
 			name: 'vue23',
 			exports: 'named',
 			globals: {
-				// Check gloabls
+				vue: 'Vue',
+				vue3: 'Vue3',
 			},
 		},
 		{

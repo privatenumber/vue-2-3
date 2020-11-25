@@ -2,8 +2,8 @@ const {toVue2} = require('vue-2-3');
 const {provide, inject, nextTick} = require('vue3');
 const {mount} = require('@vue/test-utils');
 
-describe('Vue 3 component in Vue 2', () => {
-	test('render', () => {
+describe('Vue 3 component in a Vue 2 app', () => {
+	test('render w/ class, style, attrs, props, slots', () => {
 		const Vue3Component = {
 			setup() {
 				return {
@@ -19,6 +19,8 @@ describe('Vue 3 component in Vue 2', () => {
 
 				{{ propWorks }}
 
+				<div v-bind="$attrs" />
+
 				<slot />
 				<slot name="named-slot" />
 				<slot name="template-slot" />
@@ -31,8 +33,17 @@ describe('Vue 3 component in Vue 2', () => {
 			<div>
 				I'm Vue 2
 
-				<vue3-component :prop-works="'Prop works!'">
+				<vue3-component
+					class="static"
+					:class="'dynamic'"
+					style="margin: 0;"
+					:style="{ color: 'red' }"
+					:prop-works="'Prop works!'"
+					title="attr inherited"
+				>
 					Default slot
+
+					<div>some element</div>
 
 					<template #named-slot>
 						Named slot
@@ -51,6 +62,24 @@ describe('Vue 3 component in Vue 2', () => {
 		});
 
 		expect(vm.html()).toMatchSnapshot();
+	});
+
+	test('ref & API', () => {
+		const Vue3Component = {
+			template: '<button>Im Vue 3</button>',
+		};
+
+		const app = mount({
+			template: '<div><vue-3-component ref="test" /></div>',
+			components: {
+				Vue3Component: toVue2(Vue3Component),
+			},
+		});
+
+		const button = app.findComponent({ref: 'test'});
+
+		expect(button.element.tagName).toBe('BUTTON');
+		expect(button.vm.v3.$el.tagName).toBe('BUTTON');
 	});
 
 	test('reactivity', async () => {
@@ -153,7 +182,7 @@ describe('Vue 3 component in Vue 2', () => {
 
 				<vue3-component
 					id="button"
-					@click.once="clickHandler"
+					@click.capture.once="clickHandler"
 					@custom-event="customEventHandler"
 				>
 					Click me
@@ -323,4 +352,6 @@ describe('Vue 3 component in Vue 2', () => {
 			expect(vm.html()).toBe(`<div>${randomValue} 1</div>`);
 		});
 	});
+
+	// Test providing from Vue2 component to Vue 3
 });
