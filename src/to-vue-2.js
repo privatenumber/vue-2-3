@@ -1,7 +1,15 @@
-import Vue from 'vue';
 import frag from 'vue-frag';
-import {createApp, h} from 'vue3';
 import {vue3ProxyNode} from './utils';
+
+let Vue2;
+try {
+	Vue2 = require('vue');
+} catch {}
+
+let Vue3;
+try {
+	Vue3 = require('vue3');
+} catch {}
 
 const camelizeRE = /-(\w)/g;
 
@@ -53,7 +61,7 @@ const renderVue2Vnode = /* Vue 3 component */ {
 
 	mounted() {
 		const vm = this;
-		this.vue2App = (new Vue({
+		this.vue2App = (new Vue2({
 			beforeCreate() {
 				this.$parent = vm.parent;
 			},
@@ -82,14 +90,14 @@ const renderVue2Vnode = /* Vue 3 component */ {
 			this.vue2App.$forceUpdate();
 		}
 
-		return h('div');
+		return Vue3.h('div');
 	},
 };
 
 function interopSlots(ctx) {
 	const scopedSlots = {};
 	for (const slotName in ctx.$scopedSlots) {
-		scopedSlots[slotName] = () => h(renderVue2Vnode, {
+		scopedSlots[slotName] = () => Vue3.h(renderVue2Vnode, {
 			parent: ctx,
 			vnode: ctx.$scopedSlots[slotName],
 		});
@@ -127,8 +135,8 @@ const vue2WrapperBase = {
 	// Delay until mounted for SSR
 	mounted() {
 		const vm = this;
-		this.v3app = createApp({
-			render: () => h(
+		this.v3app = Vue3.createApp({
+			render: () => Vue3.h(
 				this.$options.component,
 				mergeAttrsListeners(this),
 				interopSlots(this),
@@ -171,9 +179,32 @@ const vue2WrapperBase = {
 };
 
 const toVue2 = vue3Component => {
+	if (!Vue2 && !Vue3) {
+		throw new Error('Vue 2 & 3 were not resolved with bare specifiers "vue" & "vue3". Register them with toVue3.register(Vue2, Vue3)');
+	}
+
+	if (!Vue2) {
+		throw new Error('Vue 2 was not resolved with bare specifier "vue". Register it with toVue3.register(Vue)');
+	}
+
+	if (!Vue3) {
+		throw new Error('Vue 3 was not resolved with bare specifier "vue3". Register it with toVue3.register(Vue3) or toVue3.register({ createApp, h })');
+	}
+
 	const vue2Wrapper = Object.create(vue2WrapperBase);
 	vue2Wrapper.component = vue3Component;
 	return vue2Wrapper;
+};
+
+toVue2.register = function () {
+	for (let i = 0; i < arguments.length; i += 1) { // eslint-disable-line unicorn/no-for-loop
+		const Vue = arguments[i];
+		if (typeof Vue === 'function' && Vue.version && Vue.version.startsWith('2')) {
+			Vue2 = Vue;
+		} else if (Vue.createApp && Vue.h) {
+			Vue3 = Vue;
+		}
+	}
 };
 
 export default toVue2;

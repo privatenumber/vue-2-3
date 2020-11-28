@@ -1,7 +1,11 @@
 const {default: toVue3} = require('vue-2-3/to-vue-3');
-const {createApp, nextTick} = require('vue3');
+const Vue3 = require('vue3');
 const outdent = require('outdent');
 const Vue = require('vue');
+
+const {createApp, nextTick} = Vue3;
+
+toVue3.register(Vue, Vue3);
 
 let mountTarget;
 let app;

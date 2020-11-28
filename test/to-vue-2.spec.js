@@ -1,6 +1,10 @@
 const {default: toVue2} = require('vue-2-3/to-vue-2');
-const {createApp, provide, inject, nextTick} = require('vue3');
+const Vue = require('vue');
+const Vue3 = require('vue3');
 const {mount} = require('@vue/test-utils');
+const {createApp, provide, inject, nextTick} = Vue3;
+
+toVue2.register(Vue, Vue3);
 
 describe('Error handling', () => {
 	test('throw error when used in vue 3 app', () => {

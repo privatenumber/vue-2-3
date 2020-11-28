@@ -1,6 +1,14 @@
-import Vue from 'vue';
-import {createApp, h} from 'vue3';
 import {vue3ProxyNode} from './utils';
+
+let Vue2;
+try {
+	// Vue2 = require('vue');
+} catch {}
+
+let Vue3;
+try {
+	// Vue3 = require('vue3');
+} catch {}
 
 const hyphenateRE = /\B([A-Z])/g;
 const hyphenate = string => string.replace(hyphenateRE, '-$1').toLowerCase();
@@ -54,7 +62,7 @@ const renderVue3Vnode = {
 	props: ['parent', 'vnode'],
 
 	mounted() {
-		this.vue3App = createApp({
+		this.vue3App = Vue3.createApp({
 			render: () => this.vnode(),
 		});
 
@@ -112,7 +120,7 @@ const vue3WrapperBase = {
 		const vm = this;
 		const mountElement = this.$el;
 
-		this.v2 = new Vue({
+		this.v2 = new Vue2({
 			provide() {
 				return new Proxy(vm._.provides, {
 					getOwnPropertyDescriptor(target, key) {
@@ -170,7 +178,7 @@ const vue3WrapperBase = {
 			this.v2.$forceUpdate();
 		}
 
-		return h('div');
+		return Vue3.h('div');
 	},
 };
 
@@ -181,6 +189,18 @@ const getProvidedMixin = {
 };
 
 const toVue3 = vue2Component => {
+	if (!Vue2 && !Vue3) {
+		throw new Error('Vue 2 & 3 were not resolved with bare specifiers "vue" & "vue3". Register them with toVue3.register(Vue2, Vue3)');
+	}
+
+	if (!Vue2) {
+		throw new Error('Vue 2 was not resolved with bare specifier "vue". Register it with toVue3.register(Vue)');
+	}
+
+	if (!Vue3) {
+		throw new Error('Vue 3 was not resolved with bare specifier "vue3". Register it with toVue3.register(Vue3) or toVue3.register({ createApp, h })');
+	}
+
 	const component = Object.create(vue2Component);
 	component.mixins = [getProvidedMixin].concat(vue2Component.mixins || []);
 
@@ -188,6 +208,17 @@ const toVue3 = vue2Component => {
 	vue3Wrapper.component = component;
 
 	return vue3Wrapper;
+};
+
+toVue3.register = function () {
+	for (let i = 0; i < arguments.length; i += 1) { // eslint-disable-line unicorn/no-for-loop
+		const Vue = arguments[i];
+		if (typeof Vue === 'function' && Vue.version && Vue.version.startsWith('2')) {
+			Vue2 = Vue;
+		} else if (Vue.createApp && Vue.h) {
+			Vue3 = Vue;
+		}
+	}
 };
 
 export default toVue3;
