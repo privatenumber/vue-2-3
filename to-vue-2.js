@@ -1,12 +1,8 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('vue'), require('vue3')) :
-	typeof define === 'function' && define.amd ? define(['vue', 'vue3'], factory) :
-	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.toVue2 = factory(global.Vue, global.Vue3));
-}(this, (function (Vue, vue3) { 'use strict';
-
-	function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-	var Vue__default = /*#__PURE__*/_interopDefaultLegacy(Vue);
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.toVue2 = factory());
+}(this, (function () { 'use strict';
 
 	var e = Symbol();
 
@@ -124,6 +120,18 @@
 	  };
 	}
 
+	var Vue2;
+
+	try {
+	  Vue2 = require('vue');
+	} catch (_unused) {}
+
+	var Vue3;
+
+	try {
+	  Vue3 = require('vue3');
+	} catch (_unused2) {}
+
 	var camelizeRE = /-(\w)/g;
 
 	function normalizeEventName(eventName) {
@@ -177,7 +185,7 @@
 	    var _this = this;
 
 	    var vm = this;
-	    this.vue2App = new Vue__default['default']({
+	    this.vue2App = new Vue2({
 	      beforeCreate: function beforeCreate() {
 	        this.$parent = vm.parent;
 	      },
@@ -202,7 +210,7 @@
 	      this.vue2App.$forceUpdate();
 	    }
 
-	    return vue3.h('div');
+	    return Vue3.h('div');
 	  }
 	};
 
@@ -211,7 +219,7 @@
 
 	  var _loop = function _loop(slotName) {
 	    scopedSlots[slotName] = function () {
-	      return vue3.h(renderVue2Vnode, {
+	      return Vue3.h(renderVue2Vnode, {
 	        parent: ctx,
 	        vnode: ctx.$scopedSlots[slotName]
 	      });
@@ -256,9 +264,9 @@
 	    var _this2 = this;
 
 	    var vm = this;
-	    this.v3app = vue3.createApp({
+	    this.v3app = Vue3.createApp({
 	      render: function render() {
-	        return vue3.h(_this2.$options.component, mergeAttrsListeners(_this2), interopSlots(_this2));
+	        return Vue3.h(_this2.$options.component, mergeAttrsListeners(_this2), interopSlots(_this2));
 	      },
 	      mounted: function mounted() {
 	        var _this3 = this;
@@ -302,9 +310,34 @@
 	};
 
 	var toVue2 = function toVue2(vue3Component) {
+	  if (!Vue2 && !Vue3) {
+	    throw new Error('Vue 2 & 3 were not resolved with bare specifiers "vue" & "vue3". Register them with toVue3.register(Vue2, Vue3)');
+	  }
+
+	  if (!Vue2) {
+	    throw new Error('Vue 2 was not resolved with bare specifier "vue". Register it with toVue3.register(Vue)');
+	  }
+
+	  if (!Vue3) {
+	    throw new Error('Vue 3 was not resolved with bare specifier "vue3". Register it with toVue3.register(Vue3) or toVue3.register({ createApp, h })');
+	  }
+
 	  var vue2Wrapper = Object.create(vue2WrapperBase);
 	  vue2Wrapper.component = vue3Component;
 	  return vue2Wrapper;
+	};
+
+	toVue2.register = function () {
+	  for (var i = 0; i < arguments.length; i += 1) {
+	    // eslint-disable-line unicorn/no-for-loop
+	    var Vue = arguments[i];
+
+	    if (typeof Vue === 'function' && Vue.version && Vue.version.startsWith('2')) {
+	      Vue2 = Vue;
+	    } else if (Vue.createApp && Vue.h) {
+	      Vue3 = Vue;
+	    }
+	  }
 	};
 
 	return toVue2;

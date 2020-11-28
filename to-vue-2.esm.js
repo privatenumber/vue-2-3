@@ -1,6 +1,3 @@
-import Vue from 'vue';
-import { createApp, h } from 'vue3';
-
 var e = Symbol();
 
 function r(r, t) {
@@ -117,6 +114,18 @@ function vue3ProxyNode(element) {
   };
 }
 
+var Vue2;
+
+try {
+  Vue2 = require('vue');
+} catch (_unused) {}
+
+var Vue3;
+
+try {
+  Vue3 = require('vue3');
+} catch (_unused2) {}
+
 var camelizeRE = /-(\w)/g;
 
 function normalizeEventName(eventName) {
@@ -170,7 +179,7 @@ var renderVue2Vnode =
     var _this = this;
 
     var vm = this;
-    this.vue2App = new Vue({
+    this.vue2App = new Vue2({
       beforeCreate: function beforeCreate() {
         this.$parent = vm.parent;
       },
@@ -195,7 +204,7 @@ var renderVue2Vnode =
       this.vue2App.$forceUpdate();
     }
 
-    return h('div');
+    return Vue3.h('div');
   }
 };
 
@@ -204,7 +213,7 @@ function interopSlots(ctx) {
 
   var _loop = function _loop(slotName) {
     scopedSlots[slotName] = function () {
-      return h(renderVue2Vnode, {
+      return Vue3.h(renderVue2Vnode, {
         parent: ctx,
         vnode: ctx.$scopedSlots[slotName]
       });
@@ -249,9 +258,9 @@ var vue2WrapperBase = {
     var _this2 = this;
 
     var vm = this;
-    this.v3app = createApp({
+    this.v3app = Vue3.createApp({
       render: function render() {
-        return h(_this2.$options.component, mergeAttrsListeners(_this2), interopSlots(_this2));
+        return Vue3.h(_this2.$options.component, mergeAttrsListeners(_this2), interopSlots(_this2));
       },
       mounted: function mounted() {
         var _this3 = this;
@@ -295,9 +304,34 @@ var vue2WrapperBase = {
 };
 
 var toVue2 = function toVue2(vue3Component) {
+  if (!Vue2 && !Vue3) {
+    throw new Error('Vue 2 & 3 were not resolved with bare specifiers "vue" & "vue3". Register them with toVue3.register(Vue2, Vue3)');
+  }
+
+  if (!Vue2) {
+    throw new Error('Vue 2 was not resolved with bare specifier "vue". Register it with toVue3.register(Vue)');
+  }
+
+  if (!Vue3) {
+    throw new Error('Vue 3 was not resolved with bare specifier "vue3". Register it with toVue3.register(Vue3) or toVue3.register({ createApp, h })');
+  }
+
   var vue2Wrapper = Object.create(vue2WrapperBase);
   vue2Wrapper.component = vue3Component;
   return vue2Wrapper;
+};
+
+toVue2.register = function () {
+  for (var i = 0; i < arguments.length; i += 1) {
+    // eslint-disable-line unicorn/no-for-loop
+    var Vue = arguments[i];
+
+    if (typeof Vue === 'function' && Vue.version && Vue.version.startsWith('2')) {
+      Vue2 = Vue;
+    } else if (Vue.createApp && Vue.h) {
+      Vue3 = Vue;
+    }
+  }
 };
 
 export default toVue2;

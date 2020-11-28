@@ -1,6 +1,3 @@
-import Vue from 'vue';
-import { h, createApp } from 'vue3';
-
 function _extends() {
   _extends = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
@@ -30,6 +27,10 @@ function vue3ProxyNode(element) {
     setAttribute: noop
   };
 }
+
+var Vue2;
+
+var Vue3;
 
 var hyphenateRE = /\B([A-Z])/g;
 
@@ -87,7 +88,7 @@ var renderVue3Vnode = {
   mounted: function mounted() {
     var _this = this;
 
-    this.vue3App = createApp({
+    this.vue3App = Vue3.createApp({
       render: function render() {
         return _this.vnode();
       }
@@ -155,7 +156,7 @@ var vue3WrapperBase = {
 
     var vm = this;
     var mountElement = this.$el;
-    this.v2 = new Vue({
+    this.v2 = new Vue2({
       provide: function provide() {
         return new Proxy(vm._.provides, {
           getOwnPropertyDescriptor: function getOwnPropertyDescriptor(target, key) {
@@ -206,7 +207,7 @@ var vue3WrapperBase = {
       this.v2.$forceUpdate();
     }
 
-    return h('div');
+    return Vue3.h('div');
   }
 };
 var getProvidedMixin = {
@@ -216,11 +217,36 @@ var getProvidedMixin = {
 };
 
 var toVue3 = function toVue3(vue2Component) {
+  if (!Vue2 && !Vue3) {
+    throw new Error('Vue 2 & 3 were not resolved with bare specifiers "vue" & "vue3". Register them with toVue3.register(Vue2, Vue3)');
+  }
+
+  if (!Vue2) {
+    throw new Error('Vue 2 was not resolved with bare specifier "vue". Register it with toVue3.register(Vue)');
+  }
+
+  if (!Vue3) {
+    throw new Error('Vue 3 was not resolved with bare specifier "vue3". Register it with toVue3.register(Vue3) or toVue3.register({ createApp, h })');
+  }
+
   var component = Object.create(vue2Component);
   component.mixins = [getProvidedMixin].concat(vue2Component.mixins || []);
   var vue3Wrapper = Object.create(vue3WrapperBase);
   vue3Wrapper.component = component;
   return vue3Wrapper;
+};
+
+toVue3.register = function () {
+  for (var i = 0; i < arguments.length; i += 1) {
+    // eslint-disable-line unicorn/no-for-loop
+    var Vue = arguments[i];
+
+    if (typeof Vue === 'function' && Vue.version && Vue.version.startsWith('2')) {
+      Vue2 = Vue;
+    } else if (Vue.createApp && Vue.h) {
+      Vue3 = Vue;
+    }
+  }
 };
 
 export default toVue3;
