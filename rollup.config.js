@@ -26,7 +26,7 @@ const rollupConfigs = [
 	output: [
 		{
 			format: 'umd',
-			file: `${file}.js`,
+			file: `${file}.umd.js`,
 			name,
 			exports: 'default',
 			globals: {
@@ -36,7 +36,7 @@ const rollupConfigs = [
 		},
 		{
 			format: 'es',
-			file: `${file}.esm.js`,
+			file: `${file}.js`,
 		},
 	],
 }));

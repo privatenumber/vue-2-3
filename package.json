@@ -14,14 +14,10 @@
 	},
 	"files": [
 		"to-vue-2.js",
-		"to-vue-2.esm.js",
+		"to-vue-2.umd.js",
 		"to-vue-3.js",
-		"to-vue-3.esm.js"
+		"to-vue-3.umd.js"
 	],
-	"exports": {
-		"./to-vue-2": "./to-vue-2.esm.js",
-		"./to-vue-3": "./to-vue-3.esm.js"
-	},
 	"scripts": {
 		"lint": "xo",
 		"test": "jest --coverage",
