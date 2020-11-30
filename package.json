@@ -1,9 +1,13 @@
 {
 	"name": "vue-2-3",
 	"version": "0.0.0-semantic-release",
-	"description": "Interop Vue 2 ↔ 3 components",
+	"description": "Interop Vue 2 components in Vue 3 apps and vice versa",
 	"keywords": [
-		""
+		"vue",
+		"vue 2",
+		"vue 3",
+		"interop",
+		"components"
 	],
 	"license": "MIT",
 	"repository": "privatenumber/vue-2-3",
