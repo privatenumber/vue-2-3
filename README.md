@@ -21,6 +21,9 @@ export default {
 </script>
 ```
 
+Here's a [CodePen demo](https://codepen.io/privatenumber/pen/OJXYGya) using Vue 2 components in a Vue 3 app.
+
+
 ## 🙋‍♂️ Why?
 - **⛵️ Smooth Vue 3 migration strategy** Incrementally rewrite your components to be Vue 3 compatible!
 - **🔥 Expand Vue 2 and 3 ecosystem** Tap into the vast Vue 2 ecosystem from your Vue 3 app and vice-versa!
