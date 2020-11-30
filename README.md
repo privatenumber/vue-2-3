@@ -1,4 +1,4 @@
-# vue-2-3 [![Latest version](https://badgen.net/npm/v/vue-2-3)](https://npm.im/vue-2-3) [![Monthly downloads](https://badgen.net/npm/dm/vue-2-3)](https://npm.im/vue-2-3) [![Install size](https://packagephobia.now.sh/badge?p=vue-2-3)](https://packagephobia.now.sh/result?p=vue-2-3)
+# vue-2-3 [![Latest version](https://badgen.net/npm/v/vue-2-3)](https://npm.im/vue-2-3) [![Install size](https://packagephobia.now.sh/badge?p=vue-2-3)](https://packagephobia.now.sh/result?p=vue-2-3)
 
 Interop Vue 2 components with Vue 3 apps and vice versa!
 
