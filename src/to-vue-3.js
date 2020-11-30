@@ -2,12 +2,12 @@ import {vue3ProxyNode} from './utils';
 
 let Vue2;
 try {
-	// Vue2 = require('vue');
+	Vue2 = require('vue');
 } catch {}
 
 let Vue3;
 try {
-	// Vue3 = require('vue3');
+	Vue3 = require('vue3');
 } catch {}
 
 const hyphenateRE = /\B([A-Z])/g;
